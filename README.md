@@ -2,9 +2,13 @@
 
 ## Overview
 
-Helm chart templates uses `API version` and `Kind` properties when defining Kuberentes resources, similar to  manifest files. Kubernetes can deprecate `API versions` bentween minor releases. An example of such [deprecation is in Kubernetes 1.16](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/).
+Helm chart templates uses `API version` and `Kind` properties when defining Kuberentes resources, similar to  manifest files. Kubernetes can deprecate `API versions` between minor releases. An example of such [deprecation is in Kubernetes 1.16](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/).
 
-If you upgrade a Kubernetes cluster to a later release which deprecates API versions of deployed Helm releases then a Helm upgrade iof such a release will fail. The `helm upgrade` command fails as it attempts to create a diff patch between the current deployed release which uses the Kubernetes APIs that are deprecated against the chart you are passing with the updated API versions. This is because when Kubernetes removes an API version, the go libraries can no longer parse the deprecated objects and Helm therfore fails calling the libraries.
+There is an Kubernetes API deprecation policy in place and all chart maintainers needs to be cognisant of this and update chart Kubernetes APIs appropriately. This is not such an issue when installing a chart as it will just fail if the chart API versions are not fully compliant. You then need to get the latest chart version or update the chart yourself.
+
+This can however become a problem for Helm releases already deployed which use APIs within derprecated policy. If the Kubernetes cluster (containing such releases) is updated to a later version where the Kubernetes API deprecation is applied, then Helm becomes unable to manage such releases anymore.
+ 
+An example of this is the `helm upgrade` command . It fails as it will attempt to create a diff patch between the current deployed release which contains the Kubernetes APIs that are deprecated against the chart you are passing with the updated/supported API versions. This is because when Kubernetes removes an API version, the Go libraries can no longer parse the deprecated objects and Helm therefore fails calling the libraries.
 
 Errors similar to the following can be seen:
 
@@ -12,7 +16,7 @@ Errors similar to the following can be seen:
 Error: UPGRADE FAILED: unable to build kubernetes objects from current release manifest: unable to recognize "": no matches for kind "Deployment" in version "apps/v1beta1"
 ```
 
-The `mapdepapis` plugin fixes the issue by mapping the deprecated Kubernetes APIs inline in the release metadata.
+The `mapdepapis` plugin fixes the issue by mapping releases which contain deprecated Kubernetes APIs to supported APIs. This is performed inline in the release metadata. Once this operation is completed, you can then upgrade using the chart with supported APIs.
 
 > Note: It currently support Helm v3 only.
 
@@ -20,17 +24,17 @@ The `mapdepapis` plugin fixes the issue by mapping the deprecated Kubernetes API
 
 ### Map Helm v3 deprecated Kubernetes APIs
 
-Map Helm v3 release deprecated Kubernetes APIs in-place
+Map v3 release deprecated Kubernetes APIs in-place:
 
-Usage:
-  mapkubapis [command]
-
-Available Commands:
-  help        Help about any command
-  v3map       map v3 release deprecated Kubernetes APIs in-place
+```console
+$ helm mapkubeapis v3map RELEASE RELEASE_NAMESPACE [flags]
 
 Flags:
-  -h, --help   help for mapkubapis
+      --dry-run               simulate a command
+  -h, --help                  help for v3map
+      --kube-context string   name of the kubeconfig context to use
+      --kubeconfig string     path to the kubeconfig file
+```
 
 ## Developer (From Source) Install
 
