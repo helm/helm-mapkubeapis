@@ -1,14 +1,11 @@
-module helm-mapkubeapis
+module github.com/hickeyma/helm-mapkubeapis
 
 go 1.13
 
 require (
-	github.com/helm/helm-2to3 v0.5.1
-	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5
-	gopkg.in/yaml.v2 v2.2.4
-	helm.sh/helm/v3 v3.1.0
+	helm.sh/helm/v3 v3.1.2
 )
 
 replace (

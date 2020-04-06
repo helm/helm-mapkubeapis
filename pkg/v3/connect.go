@@ -24,7 +24,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
 
-	common "helm-mapkubeapis/pkg/common"
+	common "github.com/hickeyma/helm-mapkubeapis/pkg/common"
 )
 
 var (

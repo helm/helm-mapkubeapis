@@ -24,7 +24,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
 
-	common "helm-mapkubeapis/pkg/common"
+	common "github.com/hickeyma/helm-mapkubeapis/pkg/common"
 )
 
 // MapOptions are the options for mapping deprecated apis in a release
