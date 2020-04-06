@@ -20,6 +20,25 @@ The `mapkubeapis` plugin fixes the issue by mapping releases which contain depre
 
 > Note: It currently support Helm v3 only.
 
+## Install
+
+Based on the version in `plugin.yaml`, release binary will be downloaded from GitHub:
+
+```console
+$ helm plugin install https://github.com/hickeyma/helm-mapkubeapis.git
+Downloading and installing helm-mapkubeapis v0.0.1 ...
+https://github.com/hickeyma/helm-mapkubeapis/releases/download/v0.0.1/helm-mapkubeapis_0.0.1_darwin_amd64.tar.gz
+Installed plugin: mapkubeapis
+```
+
+### For Windows (using WSL)
+Helm's plugin install hook system relies on `/bin/sh`, regardless of the operating system present. Windows users can work around this by using Helm under [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
+```
+$ wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz
+$ tar xzf helm-v3.0.0-linux-amd64.tar.gz
+$ ./linux-amd64/helm plugin install https://github.com/hickeyma/helm-mapkubeapis
+```
+
 ## Usage
 
 ### Map Helm v3 deprecated Kubernetes APIs

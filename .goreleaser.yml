@@ -1,0 +1,21 @@
+builds:
+  - main: ./cmd/helm-mapkubeapis/map_kube_apis.go
+    binary: mapkubeapis
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+archive:
+  format: tar.gz
+  files:
+    - README.md
+    - LICENSE
+    - plugin.yaml
+    - scripts/install_plugin.sh
+checksum:
+  name_template: 'checksums.txt'

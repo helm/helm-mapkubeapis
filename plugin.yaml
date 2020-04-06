@@ -1,5 +1,8 @@
 name: "mapkubeapis"
 version: "0.0.1"
-usage: "map release deprecated Kubernetes APIs in-place"
-description: "map release deprecated Kubernetes APIs in-place"
+usage: "Map release deprecated Kubernetes APIs in-place"
+description: "Map release deprecated Kubernetes APIs in-place"
 command: "$HELM_PLUGIN_DIR/bin/mapkubeapis"
+hooks:
+  install: "cd $HELM_PLUGIN_DIR; scripts/install_plugin.sh"
+  update: "cd $HELM_PLUGIN_DIR; scripts/install_plugin.sh"
