@@ -1,4 +1,4 @@
-# Helm mapdepapis Plugin
+# Helm mapkubeapis Plugin
 
 ## Overview
 
@@ -16,7 +16,7 @@ Errors similar to the following can be seen:
 Error: UPGRADE FAILED: unable to build kubernetes objects from current release manifest: unable to recognize "": no matches for kind "Deployment" in version "apps/v1beta1"
 ```
 
-The `mapdepapis` plugin fixes the issue by mapping releases which contain deprecated Kubernetes APIs to supported APIs. This is performed inline in the release metadata. Once this operation is completed, you can then upgrade using the chart with supported APIs.
+The `mapkubeapis` plugin fixes the issue by mapping releases which contain deprecated Kubernetes APIs to supported APIs. This is performed inline in the release metadata. Once this operation is completed, you can then upgrade using the chart with supported APIs.
 
 > Note: It currently support Helm v3 only.
 
