@@ -21,9 +21,9 @@ import (
 )
 
 func main() {
-	migrateCmd := newRootCmd(os.Stdout, os.Args[1:])
+	mapCmd := newMapCmd(os.Stdout, os.Args[1:])
 
-	if err := migrateCmd.Execute(); err != nil {
+	if err := mapCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }

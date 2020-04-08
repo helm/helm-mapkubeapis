@@ -65,9 +65,10 @@ func MapReleaseWithDeprecatedAPIs(mapOptions MapOptions) error {
 		return fmt.Errorf("Failed to get release '%s' latest version due to the following error: %s", mapOptions.ReleaseName, err)
 	}
 
-	log.Printf("Check release '%s' for deprecated APIs.\n", releaseName)
+	log.Printf("Check release '%s' for deprecated APIs...\n", releaseName)
 	var origManifest = releaseToMap.Manifest
 	modifiedManifest := replaceManifestDeprecatedAPIs(origManifest)
+	log.Printf("Finished checking release '%s' for deprecated APIs.\n", releaseName)
 	if modifiedManifest == origManifest {
 		log.Printf("Release '%s' has no deprecated APIs.\n", releaseName)
 		return nil
@@ -89,11 +90,20 @@ func replaceManifestDeprecatedAPIs(origManifest string) string {
 
 	// Check for deprecated APIs and map accordingly to supported versions
 	for deprecatedAPI, supportedAPI := range mappedAPIs {
+		var modManifestForAPI string
 		if len(modifiedManifest) <= 0 {
-			modifiedManifest = strings.ReplaceAll(origManifest, deprecatedAPI, supportedAPI)
+			modManifestForAPI = strings.ReplaceAll(origManifest, deprecatedAPI, supportedAPI)
+			if modManifestForAPI != origManifest {
+				log.Printf("Found deprecated Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
+			}
+
 		} else {
-			modifiedManifest = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
+			modManifestForAPI = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
+			if modManifestForAPI != modifiedManifest {
+				log.Printf("Found deprecated Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
+			}
 		}
+		modifiedManifest = modManifestForAPI
 	}
 
 	return modifiedManifest
@@ -101,10 +111,12 @@ func replaceManifestDeprecatedAPIs(origManifest string) string {
 
 func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *action.Configuration) error {
 	// Update current release version to be superseded
+	log.Printf("Set status of release version '%s' to 'superseded'.\n", getReleaseVersionName(origRelease))
 	origRelease.Info.Status = release.StatusSuperseded
 	if err := cfg.Releases.Update(origRelease); err != nil {
-		return fmt.Errorf("failed to update current release version: %s", err)
+		return fmt.Errorf("failed to update release version '%s': %s", getReleaseVersionName(origRelease), err)
 	}
+	log.Printf("Release version '%s' updated successfully.\n", getReleaseVersionName(origRelease))
 
 	// Using a shallow copy of  current release version to update the object with the modification
 	// and then store this new version
@@ -114,12 +126,18 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	newRelease.Info.LastDeployed = cfg.Now()
 	newRelease.Version = origRelease.Version + 1
 	newRelease.Info.Status = release.StatusDeployed
+	log.Printf("Add release version '%s' with updated supported APIs.\n", getReleaseVersionName(origRelease))
 	if err := cfg.Releases.Create(newRelease); err != nil {
-		return fmt.Errorf("failed to create new release version: %s", err)
+		return fmt.Errorf("failed to create new release version '%s': %s", getReleaseVersionName(origRelease), err)
 	}
+	log.Printf("Release version '%s' added successfully.\n", getReleaseVersionName(origRelease))
 	return nil
 }
 
 func getLatestRelease(releaseName string, cfg *action.Configuration) (*release.Release, error) {
 	return cfg.Releases.Last(releaseName)
+}
+
+func getReleaseVersionName(rel *release.Release) string {
+	return fmt.Sprintf("%s.v%d", rel.Name, rel.Version)
 }
