@@ -20,6 +20,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -34,13 +35,19 @@ type MapOptions struct {
 	ReleaseNamespace string
 }
 
-func newV3MapCmd(out io.Writer) *cobra.Command {
+var (
+	settings *EnvSettings
+)
+
+func newMapCmd(out io.Writer, args []string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "v3map [flags] RELEASE RELEASE_NAMESPACE",
-		Short: "map v3 release deprecated Kubernetes APIs in-place",
+		Use:          "mapkubeapis [flags] RELEASE",
+		Short:        "Map release deprecated Kubernetes APIs in-place",
+		Long:         "Map release deprecated Kubernetes APIs in-place",
+		SilenceUsage: true,
 		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) != 2 {
-				return errors.New("name of release to be mapped and the release namespace need to be passed")
+			if len(args) != 1 {
+				return errors.New("name of release to be mapped need to be passed")
 			}
 			return nil
 		},
@@ -48,40 +55,53 @@ func newV3MapCmd(out io.Writer) *cobra.Command {
 		RunE: runMap,
 	}
 
-	flags := cmd.Flags()
+	flags := cmd.PersistentFlags()
+	flags.Parse(args)
+	settings = new(EnvSettings)
+
+	// When run with the Helm plugin framework, Helm plugins are not passed the
+	// plugin flags that correspond to Helm global flags e.g. helm mapkubeapis v3map --kube-context ...
+	// The flag values are set to corresponding environment variables instead.
+	// The flags are passed as expected when run directly using the binary.
+	// The below allows to use Helm's --kube-context global flag.
+	if ctx := os.Getenv("HELM_KUBECONTEXT"); ctx != "" {
+		settings.KubeContext = ctx
+	}
+
+	// Note that the plugin's --kubeconfig flag is set by the Helm plugin framework to
+	// the KUBECONFIG environment variable instead of being passed into the plugin.
+
 	settings.AddFlags(flags)
 
 	return cmd
-
 }
 
 func runMap(cmd *cobra.Command, args []string) error {
 	releaseName := args[0]
-	releaseNamespace := args[1]
 	mapOptions := MapOptions{
 		DryRun:           settings.DryRun,
 		ReleaseName:      releaseName,
-		ReleaseNamespace: releaseNamespace,
+		ReleaseNamespace: settings.Namespace,
 	}
 	kubeConfig := common.KubeConfig{
 		Context: settings.KubeContext,
 		File:    settings.KubeConfigFile,
 	}
 
-	return V3Map(mapOptions, kubeConfig)
+	return Map(mapOptions, kubeConfig)
 }
 
-// V3Map checks for Kubernetes deprectaed APIs in the manifest of the last deployed release version
+// Map checks for Kubernetes deprectaed APIs in the manifest of the last deployed release version
 // and maps those deprecated APIs to the supported versions. It then adds a new release version with
 // the updated APIs and supersedes the version with the deprecated APIs.
-func V3Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
+func Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 	if mapOptions.DryRun {
 		log.Println("NOTE: This is in dry-run mode, the following actions will not be executed.")
 		log.Println("Run without --dry-run to take the actions described below:")
 		log.Println()
 	}
 
-	log.Printf("Release '%s' will be checked for deprecated APIs and will be updated if necessary to supported API versions.\n", mapOptions.ReleaseName)
+	log.Printf("Release '%s' will be checked for deprecated Kubernetes APIs and will be updated if necessary to supported API versions.\n", mapOptions.ReleaseName)
 
 	v3MapOptions := v3.MapOptions{
 		DryRun:           mapOptions.DryRun,
@@ -94,7 +114,7 @@ func V3Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 		return err
 	}
 
-	log.Printf("Map of release '%s' deprecated APIs, completed successfully.\n", mapOptions.ReleaseName)
+	log.Printf("Map of release '%s' deprecated APIs to supported APIs, completed successfully.\n", mapOptions.ReleaseName)
 
 	return nil
 }

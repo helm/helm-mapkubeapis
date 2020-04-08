@@ -16,14 +16,20 @@ limitations under the License.
 
 package main
 
-import "github.com/spf13/pflag"
+import (
+	"github.com/spf13/pflag"
+)
 
+// EnvSettings defined settings
 type EnvSettings struct {
 	DryRun         bool
 	KubeConfigFile string
 	KubeContext    string
+	Namespace      string
+	//RunV2		   bool
 }
 
+// New returns default env settings
 func New() *EnvSettings {
 	envSettings := EnvSettings{}
 	return &envSettings
@@ -39,4 +45,6 @@ func (s *EnvSettings) AddFlags(fs *pflag.FlagSet) {
 	s.AddBaseFlags(fs)
 	fs.StringVar(&s.KubeConfigFile, "kubeconfig", "", "path to the kubeconfig file")
 	fs.StringVar(&s.KubeContext, "kube-context", s.KubeContext, "name of the kubeconfig context to use")
+	fs.StringVar(&s.Namespace, "namespace", s.Namespace, "namespace scope of the release")
+	//fs.BoolVar(&s.RunV2, "v2", false, "run for Helm v2 release. The default is Helm v3.")
 }

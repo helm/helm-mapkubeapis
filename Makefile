@@ -5,7 +5,7 @@ MOD_PROXY_URL ?= https://goproxy.io
 .PHONY: build
 build:
 	export CGO_ENABLED=0 && \
-	go build -o bin/${HELM_PLUGIN_NAME} -ldflags $(LDFLAGS) ./cmd/helm-mapkubeapis
+	go build -o bin/${HELM_PLUGIN_NAME} -ldflags $(LDFLAGS) ./cmd/mapkubeapis
 
 .PHONY: bootstrap
 bootstrap:
