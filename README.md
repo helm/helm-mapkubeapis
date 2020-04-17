@@ -12,6 +12,7 @@ mapkubeapis is a simple Helm plugin which is designed to update Helm release met
 - Helm client with `mapkubeapis` plugin installed on the same system
 - Access to the cluster(s) that Helm manages. This access is similar to `kubectl` access using [kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/).
   The `--kubeconfig`, `--kube-context` and `--namespace` flags can be used to set the kubeconfig path, kube context and namespace context to override the environment configuration.
+- If you try and upgrade a release with unsupported APIs then the upgrade will fail. This is ok in Helm v3 as it will not generate a failed release for Helm. However, Helm v2 does produce a failed release. This needs to be removed before running the plugin on the release. The command to remove the failed release version is: `kubectl delete configmap/secret <release_name>.v<failed_version_number> --namespace <tiller_namespace>`
 
 ## Install
 
@@ -56,7 +57,7 @@ Flags:
 Example output:
 
 ```console
-$ helm mapkubeapis oldapi-chrt --namespace test
+$ helm mapkubeapis oldapi-chrt --namespace kube-system --v2
 2020/04/17 13:05:45 Release 'v2-oldapi' will be checked for deprecated or removed Kubernetes APIs and will be updated if necessary to supported API versions.
 2020/04/17 13:05:45 Get release 'v2-oldapi' latest version.
 2020/04/17 13:05:45 Check release 'v2-oldapi' for deprecated or removed APIs...
@@ -84,16 +85,17 @@ kind: Ingress"
 
 ## Background to the issue
 
-Kubernetes is an API-driven system and the API evolves over time to reflect the evolving understanding of the problem space. This is common practice across systems and their APIs. An important part of evolving APIs is a good deprecation policy and process to inform users of how changes to APIs are implemented. In other words, consumers of your API need to know in advance in what release an API will be removed or changed. This removes the element of surprise and unexpected breaking changes to the consumers. 
+Kubernetes is an API-driven system and the API evolves over time to reflect the evolving understanding of the problem space. This is common practice across systems and their APIs. An important part of evolving APIs is a good deprecation policy and process to inform users of how changes to APIs are implemented. In other words, consumers of your API need to know in advance and in what release an API will be removed or changed. This removes the element of surprise and breaking changes to consumers. 
 
-The [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) documents how Kubernetes handles the changes to its API versions. The policy for deprecation states the timeframe that API versions will be supported following a deprecation announcement. It is therefore important to be aware of deprecation announcements to mimimize the effect to you once an API version goes out of support.
-This is an example of [the removal of deprecated API versions in Kubernetes 1.16](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/). 
+The [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) documents how Kubernetes handles the changes to its API versions. The policy for deprecation states the timeframe that API versions will be supported following a deprecation announcement. It is therefore important to be aware of deprecation announcements and know when API versions will be removed, to help mimimize the effect.
 
-Helm chart templates uses Kubernetes `API version` and `Kind` properties when defining Kuberentes resources, similar to  manifest files. This therefore means that Helm users and chart maintainers need to be aware when Kubvernetes API versions have been deprecated and in what Kubernetes version they will removed.
+This is an example of an announcement [for the removal of deprecated API versions in Kubernetes 1.16](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/) and was advertised a few months prior to the release. These API versions would have been announced for deprecation prior to this again. This shows that there is a good policy in place which informs consumers of the API versions. 
 
-This is not such a big issue when installing a chart as it will just fail if the chart API versions are no longer supported. In this situation, you then need to get the latest chart version or update the chart yourself.
+Helm chart templates uses Kubernetes `API version` and `Kind` properties when defining Kuberentes resources, similar to  manifest files. This means that Helm users and chart maintainers need to be aware when Kubernetes API versions have been deprecated and in what Kubernetes version they will removed.
 
-This does however become a problem for Helm releases that are already deployed with APIs that are no longer supported. If the Kubernetes cluster (containing such releases) is updated to a version where the APIs are removed, then Helm becomes unable to manage such releases anymore. It does not matter if the chart being passed in the upgrade contains the supported API versions.
+This is not a big issue when installing a chart as it will just fail if the chart API versions are no longer supported. In this situation, you then need to get the latest chart version (if the maintainer update it) or update the chart yourself.
+
+This does however become a problem for Helm releases that are already deployed with APIs that are no longer supported. If the Kubernetes cluster (containing such releases) is updated to a version where the APIs are removed, then Helm becomes unable to manage such releases anymore. It does not matter if the chart being passed in the upgrade contains the supported API versions or not.
  
 It fails with an error similar to the following:
 
