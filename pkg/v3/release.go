@@ -26,9 +26,9 @@ import (
 	common "github.com/hickeyma/helm-mapkubeapis/pkg/common"
 )
 
-// MapReleaseWithDeprecatedAPIs checks the latest release version for any deprecated APIs in its metadata
+// MapReleaseWithUnSupportedAPIs checks the latest release version for any deprecated or removed APIs in its metadata
 // If it finds any, it will create a new release version with the APIs mapped to the supported versions
-func MapReleaseWithDeprecatedAPIs(mapOptions common.MapOptions) error {
+func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 	cfg, err := GetActionConfig(mapOptions.ReleaseNamespace, mapOptions.KubeConfig)
 	if err != nil {
 		return fmt.Errorf("Failed to get Helm action configuration due to the following error: %s", err)
@@ -41,21 +41,21 @@ func MapReleaseWithDeprecatedAPIs(mapOptions common.MapOptions) error {
 		return fmt.Errorf("Failed to get release '%s' latest version due to the following error: %s", mapOptions.ReleaseName, err)
 	}
 
-	log.Printf("Check release '%s' for deprecated APIs...\n", releaseName)
+	log.Printf("Check release '%s' for deprecated or removed APIs...\n", releaseName)
 	var origManifest = releaseToMap.Manifest
-	modifiedManifest := common.ReplaceManifestDeprecatedAPIs(origManifest)
-	log.Printf("Finished checking release '%s' for deprecated APIs.\n", releaseName)
+	modifiedManifest := common.ReplaceManifestUnSupportedAPIs(origManifest)
+	log.Printf("Finished checking release '%s' for deprecated or rempved APIs.\n", releaseName)
 	if modifiedManifest == origManifest {
-		log.Printf("Release '%s' has no deprecated APIs.\n", releaseName)
+		log.Printf("Release '%s' has no deprecated or removed APIs.\n", releaseName)
 		return nil
 	}
 
-	log.Printf("Deprecated APIs exist, updating release: %s.\n", releaseName)
+	log.Printf("Deprecated or removed APIs exist, updating release: %s.\n", releaseName)
 	if !mapOptions.DryRun {
 		if err := updateRelease(releaseToMap, modifiedManifest, cfg); err != nil {
 			return fmt.Errorf("Failed to update release '%s' due to the following error: %s", releaseName, err)
 		}
-		log.Printf("Release '%s' with deprecated APIs updated successfully to new version.\n", releaseName)
+		log.Printf("Release '%s' with deprecated or removed APIs updated successfully to new version.\n", releaseName)
 	}
 
 	return nil

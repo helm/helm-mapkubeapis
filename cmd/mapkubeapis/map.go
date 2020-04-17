@@ -46,12 +46,12 @@ var (
 func newMapCmd(out io.Writer, args []string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "mapkubeapis [flags] RELEASE",
-		Short:        "Map release deprecated Kubernetes APIs in-place",
-		Long:         "Map release deprecated Kubernetes APIs in-place",
+		Short:        "Map release deprecated or removed Kubernetes APIs in-place",
+		Long:         "Map release deprecated or removed Kubernetes APIs in-place",
 		SilenceUsage: true,
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
-				return errors.New("name of release to be mapped need to be passed")
+				return errors.New("name of release to be mapped needs to be passed")
 			}
 			return nil
 		},
@@ -98,9 +98,9 @@ func runMap(cmd *cobra.Command, args []string) error {
 	return Map(mapOptions, kubeConfig)
 }
 
-// Map checks for Kubernetes deprectaed APIs in the manifest of the last deployed release version
-// and maps those deprecated APIs to the supported versions. It then adds a new release version with
-// the updated APIs and supersedes the version with the deprecated APIs.
+// Map checks for Kubernetes deprecated or removed APIs in the manifest of the last deployed release version
+// and maps those API versions to supported versions. It then adds a new release version with
+// the updated APIs and supersedes the version with the unsupported APIs.
 func Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 	if mapOptions.DryRun {
 		log.Println("NOTE: This is in dry-run mode, the following actions will not be executed.")
@@ -108,7 +108,7 @@ func Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 		log.Println()
 	}
 
-	log.Printf("Release '%s' will be checked for deprecated Kubernetes APIs and will be updated if necessary to supported API versions.\n", mapOptions.ReleaseName)
+	log.Printf("Release '%s' will be checked for deprecated or removed Kubernetes APIs and will be updated if necessary to supported API versions.\n", mapOptions.ReleaseName)
 
 	options := common.MapOptions{
 		DryRun:           mapOptions.DryRun,
@@ -124,16 +124,16 @@ func Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 		if options.ReleaseNamespace == "" {
 			options.ReleaseNamespace = "kube-system"
 		}
-		if err := v2.MapReleaseWithDeprecatedAPIs(options); err != nil {
+		if err := v2.MapReleaseWithUnSupportedAPIs(options); err != nil {
 			return err
 		}
 	} else {
-		if err := v3.MapReleaseWithDeprecatedAPIs(options); err != nil {
+		if err := v3.MapReleaseWithUnSupportedAPIs(options); err != nil {
 			return err
 		}
 	}
 
-	log.Printf("Map of release '%s' deprecated APIs to supported APIs, completed successfully.\n", mapOptions.ReleaseName)
+	log.Printf("Map of release '%s' deprecated or removed APIs to supported versions, completed successfully.\n", mapOptions.ReleaseName)
 
 	return nil
 }
