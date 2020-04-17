@@ -1,5 +1,5 @@
 /*
-Copyright The Helm Authors.
+Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hickeyma/helm-mapkubeapis/pkg/common"
+	v2 "github.com/hickeyma/helm-mapkubeapis/pkg/v2"
 	v3 "github.com/hickeyma/helm-mapkubeapis/pkg/v3"
 )
 
@@ -33,6 +34,9 @@ type MapOptions struct {
 	DryRun           bool
 	ReleaseName      string
 	ReleaseNamespace string
+	RunV2            bool
+	StorageType      string
+	TillerOutCluster bool
 }
 
 var (
@@ -82,6 +86,9 @@ func runMap(cmd *cobra.Command, args []string) error {
 		DryRun:           settings.DryRun,
 		ReleaseName:      releaseName,
 		ReleaseNamespace: settings.Namespace,
+		RunV2:            settings.RunV2,
+		StorageType:      settings.StorageType,
+		TillerOutCluster: settings.TillerOutCluster,
 	}
 	kubeConfig := common.KubeConfig{
 		Context: settings.KubeContext,
@@ -103,15 +110,27 @@ func Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 
 	log.Printf("Release '%s' will be checked for deprecated Kubernetes APIs and will be updated if necessary to supported API versions.\n", mapOptions.ReleaseName)
 
-	v3MapOptions := v3.MapOptions{
+	options := common.MapOptions{
 		DryRun:           mapOptions.DryRun,
 		KubeConfig:       kubeConfig,
 		ReleaseName:      mapOptions.ReleaseName,
 		ReleaseNamespace: mapOptions.ReleaseNamespace,
+		StorageType:      mapOptions.StorageType,
+		TillerOutCluster: mapOptions.TillerOutCluster,
 	}
 
-	if err := v3.MapReleaseWithDeprecatedAPIs(v3MapOptions); err != nil {
-		return err
+	if mapOptions.RunV2 {
+		// default namespace to the Tiller default namespace
+		if options.ReleaseNamespace == "" {
+			options.ReleaseNamespace = "kube-system"
+		}
+		if err := v2.MapReleaseWithDeprecatedAPIs(options); err != nil {
+			return err
+		}
+	} else {
+		if err := v3.MapReleaseWithDeprecatedAPIs(options); err != nil {
+			return err
+		}
 	}
 
 	log.Printf("Map of release '%s' deprecated APIs to supported APIs, completed successfully.\n", mapOptions.ReleaseName)
