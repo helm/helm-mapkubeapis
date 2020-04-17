@@ -55,24 +55,24 @@ var mappedAPIs = map[string]string{
 	"apiVersion: apps/v1beta12\nkind: ReplicaSet":             "apiVersion: apps/v1\nkind: ReplicaSet",
 	"apiVersion: extensions/v1beta1\nkind: Ingress":           "apiVersion: networking.k8s.io/v1beta1\nkind: Ingress"}
 
-// ReplaceManifestDeprecatedAPIs returns a release manifest with deprecated or removed
+// ReplaceManifestUnSupportedAPIs returns a release manifest with deprecated or removed
 // Kubernetes APIs updated to supported APIs
-func ReplaceManifestDeprecatedAPIs(origManifest string) string {
+func ReplaceManifestUnSupportedAPIs(origManifest string) string {
 	var modifiedManifest string
 
-	// Check for deprecated APIs and map accordingly to supported versions
+	// Check for deprecated or removed APIs and map accordingly to supported versions
 	for deprecatedAPI, supportedAPI := range mappedAPIs {
 		var modManifestForAPI string
 		if len(modifiedManifest) <= 0 {
 			modManifestForAPI = strings.ReplaceAll(origManifest, deprecatedAPI, supportedAPI)
 			if modManifestForAPI != origManifest {
-				log.Printf("Found deprecated Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
+				log.Printf("Found deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
 			}
 
 		} else {
 			modManifestForAPI = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
 			if modManifestForAPI != modifiedManifest {
-				log.Printf("Found deprecated Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
+				log.Printf("Found deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
 			}
 		}
 		modifiedManifest = modManifestForAPI
