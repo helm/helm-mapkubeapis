@@ -47,12 +47,12 @@ var mappedAPIs = map[string]string{
 	"apiVersion: apps/v1beta2\nkind: DaemonSet":               "apiVersion: apps/v1\nkind: DaemonSet",
 	"apiVersion: extensions/v1beta1\nkind: Deployment":        "apiVersion: apps/v1\nkind: Deployment",
 	"apiVersion: apps/v1beta1\nkind: Deployment":              "apiVersion: apps/v1\nkind: Deployment",
-	"apiVersion: apps/v1beta12\nkind: Deployment":             "apiVersion: apps/v1\nkind: Deployment",
+	"apiVersion: apps/v1beta2\nkind: Deployment":              "apiVersion: apps/v1\nkind: Deployment",
 	"apiVersion: apps/v1beta1\nkind: StatefulSet":             "apiVersion: apps/v1\nkind: StatefulSet",
-	"apiVersion: apps/v1beta12\nkind: StatefulSet":            "apiVersion: apps/v1\nkind: StatefulSet",
+	"apiVersion: apps/v1beta2\nkind: StatefulSet":             "apiVersion: apps/v1\nkind: StatefulSet",
 	"apiVersion: extensions/v1beta1\nkind: ReplicaSet":        "apiVersion: apps/v1\nkind: ReplicaSet",
 	"apiVersion: apps/v1beta1\nkind: ReplicaSet":              "apiVersion: apps/v1\nkind: ReplicaSet",
-	"apiVersion: apps/v1beta12\nkind: ReplicaSet":             "apiVersion: apps/v1\nkind: ReplicaSet",
+	"apiVersion: apps/v1beta2\nkind: ReplicaSet":              "apiVersion: apps/v1\nkind: ReplicaSet",
 	"apiVersion: extensions/v1beta1\nkind: Ingress":           "apiVersion: networking.k8s.io/v1beta1\nkind: Ingress"}
 
 // ReplaceManifestUnSupportedAPIs returns a release manifest with deprecated or removed
