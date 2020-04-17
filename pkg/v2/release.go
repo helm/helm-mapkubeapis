@@ -14,14 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v3
+package v2
 
 import (
 	"fmt"
 	"log"
+	"time"
 
-	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/release"
+	"k8s.io/helm/pkg/proto/hapi/release"
+	"k8s.io/helm/pkg/storage"
+	"k8s.io/helm/pkg/timeconv"
 
 	common "github.com/hickeyma/helm-mapkubeapis/pkg/common"
 )
@@ -29,14 +31,10 @@ import (
 // MapReleaseWithDeprecatedAPIs checks the latest release version for any deprecated APIs in its metadata
 // If it finds any, it will create a new release version with the APIs mapped to the supported versions
 func MapReleaseWithDeprecatedAPIs(mapOptions common.MapOptions) error {
-	cfg, err := GetActionConfig(mapOptions.ReleaseNamespace, mapOptions.KubeConfig)
-	if err != nil {
-		return fmt.Errorf("Failed to get Helm action configuration due to the following error: %s", err)
-	}
-
 	var releaseName = mapOptions.ReleaseName
 	log.Printf("Get release '%s' latest version.\n", releaseName)
-	releaseToMap, err := getLatestRelease(releaseName, cfg)
+	storageDriver := GetStorageDriver(mapOptions)
+	releaseToMap, err := getLatestRelease(releaseName, storageDriver)
 	if err != nil {
 		return fmt.Errorf("Failed to get release '%s' latest version due to the following error: %s", mapOptions.ReleaseName, err)
 	}
@@ -52,7 +50,7 @@ func MapReleaseWithDeprecatedAPIs(mapOptions common.MapOptions) error {
 
 	log.Printf("Deprecated APIs exist, updating release: %s.\n", releaseName)
 	if !mapOptions.DryRun {
-		if err := updateRelease(releaseToMap, modifiedManifest, cfg); err != nil {
+		if err := updateRelease(releaseToMap, modifiedManifest, storageDriver); err != nil {
 			return fmt.Errorf("Failed to update release '%s' due to the following error: %s", releaseName, err)
 		}
 		log.Printf("Release '%s' with deprecated APIs updated successfully to new version.\n", releaseName)
@@ -61,11 +59,15 @@ func MapReleaseWithDeprecatedAPIs(mapOptions common.MapOptions) error {
 	return nil
 }
 
-func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *action.Configuration) error {
+func getLatestRelease(releaseName string, storageDriver *storage.Storage) (*release.Release, error) {
+	return storageDriver.Last(releaseName)
+}
+
+func updateRelease(origRelease *release.Release, modifiedManifest string, storageDriver *storage.Storage) error {
 	// Update current release version to be superseded
 	log.Printf("Set status of release version '%s' to 'superseded'.\n", getReleaseVersionName(origRelease))
-	origRelease.Info.Status = release.StatusSuperseded
-	if err := cfg.Releases.Update(origRelease); err != nil {
+	origRelease.Info.Status.Code = release.Status_SUPERSEDED
+	if err := storageDriver.Update(origRelease); err != nil {
 		return fmt.Errorf("failed to update release version '%s': %s", getReleaseVersionName(origRelease), err)
 	}
 	log.Printf("Release version '%s' updated successfully.\n", getReleaseVersionName(origRelease))
@@ -75,19 +77,15 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	var newRelease = origRelease
 	newRelease.Manifest = modifiedManifest
 	newRelease.Info.Description = common.UpgradeDescription
-	newRelease.Info.LastDeployed = cfg.Now()
+	newRelease.Info.LastDeployed = timeconv.Timestamp(time.Now())
 	newRelease.Version = origRelease.Version + 1
-	newRelease.Info.Status = release.StatusDeployed
+	newRelease.Info.Status.Code = release.Status_DEPLOYED
 	log.Printf("Add release version '%s' with updated supported APIs.\n", getReleaseVersionName(origRelease))
-	if err := cfg.Releases.Create(newRelease); err != nil {
+	if err := storageDriver.Create(newRelease); err != nil {
 		return fmt.Errorf("failed to create new release version '%s': %s", getReleaseVersionName(origRelease), err)
 	}
 	log.Printf("Release version '%s' added successfully.\n", getReleaseVersionName(origRelease))
 	return nil
-}
-
-func getLatestRelease(releaseName string, cfg *action.Configuration) (*release.Release, error) {
-	return cfg.Releases.Last(releaseName)
 }
 
 func getReleaseVersionName(rel *release.Release) string {
