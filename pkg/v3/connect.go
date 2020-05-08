@@ -39,7 +39,7 @@ func GetActionConfig(namespace string, kubeConfig common.KubeConfig) (*action.Co
 	settings.KubeConfig = kubeConfig.File
 	settings.KubeContext = kubeConfig.Context
 
-	// check if the namepscae is passed by the user. If not get Helm to return the current namespace
+	// check if the namespace is passed by the user. If not get Helm to return the current namespace
 	if namespace == "" {
 		namespace = settings.Namespace()
 	}
