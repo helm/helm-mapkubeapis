@@ -44,7 +44,7 @@ func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 	log.Printf("Check release '%s' for deprecated or removed APIs...\n", releaseName)
 	var origManifest = releaseToMap.Manifest
 	modifiedManifest := common.ReplaceManifestUnSupportedAPIs(origManifest)
-	log.Printf("Finished checking release '%s' for deprecated or rempved APIs.\n", releaseName)
+	log.Printf("Finished checking release '%s' for deprecated or removed APIs.\n", releaseName)
 	if modifiedManifest == origManifest {
 		log.Printf("Release '%s' has no deprecated or removed APIs.\n", releaseName)
 		return nil
@@ -70,7 +70,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	}
 	log.Printf("Release version '%s' updated successfully.\n", getReleaseVersionName(origRelease))
 
-	// Using a shallow copy of  current release version to update the object with the modification
+	// Using a shallow copy of current release version to update the object with the modification
 	// and then store this new version
 	var newRelease = origRelease
 	newRelease.Manifest = modifiedManifest

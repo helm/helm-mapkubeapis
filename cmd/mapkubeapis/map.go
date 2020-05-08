@@ -29,7 +29,7 @@ import (
 	v3 "github.com/hickeyma/helm-mapkubeapis/pkg/v3"
 )
 
-// MapOptions sontains the options for Map operation
+// MapOptions contains the options for Map operation
 type MapOptions struct {
 	DryRun           bool
 	ReleaseName      string

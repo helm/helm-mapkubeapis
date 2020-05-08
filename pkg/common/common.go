@@ -27,7 +27,7 @@ type KubeConfig struct {
 	File    string
 }
 
-// MapOptions are the options for mapping deprecated apis in a release
+// MapOptions are the options for mapping deprecated APIs in a release
 type MapOptions struct {
 	DryRun           bool
 	KubeConfig       KubeConfig
