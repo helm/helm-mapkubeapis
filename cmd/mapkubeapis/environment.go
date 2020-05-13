@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"github.com/hickeyma/helm-mapkubeapis/pkg/common"
 	"github.com/spf13/pflag"
 )
 
@@ -25,6 +26,7 @@ type EnvSettings struct {
 	DryRun           bool
 	KubeConfigFile   string
 	KubeContext      string
+	MapFile          string
 	Namespace        string
 	RunV2            bool
 	StorageType      string
@@ -47,6 +49,7 @@ func (s *EnvSettings) AddFlags(fs *pflag.FlagSet) {
 	s.AddBaseFlags(fs)
 	fs.StringVar(&s.KubeConfigFile, "kubeconfig", "", "path to the kubeconfig file")
 	fs.StringVar(&s.KubeContext, "kube-context", s.KubeContext, "name of the kubeconfig context to use")
+	fs.StringVar(&s.MapFile, "mapfile", common.DefaultMappingFile, "path to the API mapping file")
 	fs.StringVar(&s.Namespace, "namespace", s.Namespace, "namespace scope of the release. For Helm v2, this is the Tiller namespace e.g. kube-system")
 	fs.BoolVar(&s.RunV2, "v2", false, "run for Helm v2 release. The default is Helm v3.")
 	fs.BoolVar(&s.TillerOutCluster, "tiller-out-cluster", false, "for Helm v2 only - when Tiller is not running in the cluster e.g. Tillerless")

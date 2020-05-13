@@ -32,6 +32,7 @@ import (
 // MapOptions contains the options for Map operation
 type MapOptions struct {
 	DryRun           bool
+	MapFile          string
 	ReleaseName      string
 	ReleaseNamespace string
 	RunV2            bool
@@ -84,6 +85,7 @@ func runMap(cmd *cobra.Command, args []string) error {
 	releaseName := args[0]
 	mapOptions := MapOptions{
 		DryRun:           settings.DryRun,
+		MapFile:          settings.MapFile,
 		ReleaseName:      releaseName,
 		ReleaseNamespace: settings.Namespace,
 		RunV2:            settings.RunV2,
@@ -113,6 +115,7 @@ func Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 	options := common.MapOptions{
 		DryRun:           mapOptions.DryRun,
 		KubeConfig:       kubeConfig,
+		MapFile:          mapOptions.MapFile,
 		ReleaseName:      mapOptions.ReleaseName,
 		ReleaseNamespace: mapOptions.ReleaseNamespace,
 		StorageType:      mapOptions.StorageType,
