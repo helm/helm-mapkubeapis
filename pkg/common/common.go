@@ -18,7 +18,12 @@ package common
 
 import (
 	"log"
+	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	"github.com/hickeyma/helm-mapkubeapis/pkg/mapping"
 )
 
 // KubeConfig are the Kubernetes configuration settings
@@ -31,6 +36,7 @@ type KubeConfig struct {
 type MapOptions struct {
 	DryRun           bool
 	KubeConfig       KubeConfig
+	MapFile          string
 	ReleaseName      string
 	ReleaseNamespace string
 	StorageType      string
@@ -40,46 +46,38 @@ type MapOptions struct {
 // UpgradeDescription is description of why release was upgraded
 const UpgradeDescription = "Kubernetes deprecated API upgrade - DO NOT rollback from this version"
 
-var mappedAPIs = map[string]string{
-	"apiVersion: extensions/v1beta1\nkind: Deployment":                             "apiVersion: apps/v1\nkind: Deployment",
-	"apiVersion: apps/v1beta1\nkind: Deployment":                                   "apiVersion: apps/v1\nkind: Deployment",
-	"apiVersion: apps/v1beta2\nkind: Deployment":                                   "apiVersion: apps/v1\nkind: Deployment",
-	"apiVersion: apps/v1beta1\nkind: StatefulSet":                                  "apiVersion: apps/v1\nkind: StatefulSet",
-	"apiVersion: apps/v1beta2\nkind: StatefulSet":                                  "apiVersion: apps/v1\nkind: StatefulSet",
-	"apiVersion: extensions/v1beta1\nkind: DaemonSet":                              "apiVersion: apps/v1\nkind: DaemonSet",
-	"apiVersion: apps/v1beta2\nkind: DaemonSet":                                    "apiVersion: apps/v1\nkind: DaemonSet",
-	"apiVersion: extensions/v1beta1\nkind: ReplicaSet":                             "apiVersion: apps/v1\nkind: ReplicaSet",
-	"apiVersion: apps/v1beta1\nkind: ReplicaSet":                                   "apiVersion: apps/v1\nkind: ReplicaSet",
-	"apiVersion: apps/v1beta2\nkind: ReplicaSet":                                   "apiVersion: apps/v1\nkind: ReplicaSet",
-	"apiVersion: extensions/v1beta1\nkind: NetworkPolicy":                          "apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy",
-	"apiVersion: extensions/v1beta1\nkind: PodSecurityPolicy":                      "apiVersion: policy/v1beta1\nkind: PodSecurityPolicy",
-	"apiVersion: apiextensions.k8s.io/v1beta1\nkind: CustomResourceDefinition":     "apiVersion: apiextensions.k8s.io/v1\nkind: CustomResourceDefinition",
-	"apiVersion: extensions/v1beta1\nkind: Ingress":                                "apiVersion: networking.k8s.io/v1beta1\nkind: Ingress",
-	"apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRole":            "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole",
-	"apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRoleList":        "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleList",
-	"apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRoleBinding":     "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding",
-	"apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRoleBindingList": "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBindingList",
-	"apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: Role":                   "apiVersion: rbac.authorization.k8s.io/v1\nkind: Role",
-	"apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: RoleList":               "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleList",
-	"apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: RoleBinding":            "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding",
-	"apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: RoleBindingList":        "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBindingList",
-	"apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRole":             "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole",
-	"apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRoleList":         "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleList",
-	"apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRoleBinding":      "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding",
-	"apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRoleBindingList":  "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBindingList",
-	"apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: Role":                    "apiVersion: rbac.authorization.k8s.io/v1\nkind: Role",
-	"apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: RoleList":                "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleList",
-	"apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: RoleBinding":             "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding",
-	"apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: RoleBindingList":         "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBindingList",
-}
+// DefaultMappingFile is the path to the default mapping file
+var DefaultMappingFile = filepath.Join("config", "Map.yaml")
 
 // ReplaceManifestUnSupportedAPIs returns a release manifest with deprecated or removed
 // Kubernetes APIs updated to supported APIs
-func ReplaceManifestUnSupportedAPIs(origManifest string) string {
+func ReplaceManifestUnSupportedAPIs(origManifest, mapFile, kubeVersion string) (string, error) {
 	var modifiedManifest string
+	var err error
+	var mapMetadata *mapping.Metadata
+
+	// Load the mapping data
+	if mapMetadata, err = mapping.LoadMapfile(mapFile); err != nil {
+		return "", errors.Wrapf(err, "Failed to load mapping file: %s", mapFile)
+	}
 
 	// Check for deprecated or removed APIs and map accordingly to supported versions
-	for deprecatedAPI, supportedAPI := range mappedAPIs {
+	for _, mapping := range mapMetadata.Mappings {
+		deprecatedAPI := mapping.DeprecatedAPI
+		supportedAPI := mapping.NewAPI
+		if kubeVersion != "" {
+			var version string
+			if mapping.DeprecatedInVersion != "" {
+				version = mapping.DeprecatedInVersion
+			} else {
+				version = mapping.RemovedInVersion
+			}
+			if version > kubeVersion {
+				log.Printf("The following API does not required mapping now as it is not deprecated till Kubernetes '%s':\n\"%s\"\n", mapping.DeprecatedInVersion,
+					deprecatedAPI)
+				continue
+			}
+		}
 		var modManifestForAPI string
 		if len(modifiedManifest) <= 0 {
 			modManifestForAPI = strings.ReplaceAll(origManifest, deprecatedAPI, supportedAPI)
@@ -96,5 +94,5 @@ func ReplaceManifestUnSupportedAPIs(origManifest string) string {
 		modifiedManifest = modManifestForAPI
 	}
 
-	return modifiedManifest
+	return modifiedManifest, nil
 }
