@@ -18,7 +18,6 @@ package common
 
 import (
 	"log"
-	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -45,9 +44,6 @@ type MapOptions struct {
 
 // UpgradeDescription is description of why release was upgraded
 const UpgradeDescription = "Kubernetes deprecated API upgrade - DO NOT rollback from this version"
-
-// DefaultMappingFile is the path to the default mapping file
-var DefaultMappingFile = filepath.Join("config", "Map.yaml")
 
 // ReplaceManifestUnSupportedAPIs returns a release manifest with deprecated or removed
 // Kubernetes APIs updated to supported APIs

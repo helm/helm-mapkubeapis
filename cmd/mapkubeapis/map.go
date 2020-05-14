@@ -21,6 +21,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -63,6 +64,13 @@ func newMapCmd(out io.Writer, args []string) *cobra.Command {
 	flags := cmd.PersistentFlags()
 	flags.Parse(args)
 	settings = new(EnvSettings)
+
+	// Get the default mapping file
+	if ctx := os.Getenv("HELM_PLUGIN_DIR"); ctx != "" {
+		settings.MapFile = filepath.Join(ctx, "config", "Map.yaml")
+	} else {
+		settings.MapFile = filepath.Join("config", "Map.yaml")
+	}
 
 	// When run with the Helm plugin framework, Helm plugins are not passed the
 	// plugin flags that correspond to Helm global flags e.g. helm mapkubeapis v3map --kube-context ...
