@@ -9,9 +9,11 @@ mapkubeapis is a simple Helm plugin which is designed to update Helm release met
 
 ## Prerequisite
 
+- Kubernetes 1.16+
 - Helm client with `mapkubeapis` plugin installed on the same system
 - Access to the cluster(s) that Helm manages. This access is similar to `kubectl` access using [kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/).
   The `--kubeconfig`, `--kube-context` and `--namespace` flags can be used to set the kubeconfig path, kube context and namespace context to override the environment configuration.
+- Check the [API Mapping](#api-mapping) before running, as you may need to disable any mappings that are not deprecated in your Kubernetes cluster version.
 - If you try and upgrade a release with unsupported APIs then the upgrade will fail. This is ok in Helm v3 as it will not generate a failed release for Helm. However, Helm v2 does produce a failed release. This needs to be removed before running the plugin on the release. The command to remove the failed release version is: `kubectl delete configmap/secret <release_name>.v<failed_version_number> --namespace <tiller_namespace>`
 
 ## Install
@@ -48,6 +50,7 @@ Flags:
   -h, --help                     help for mapkubeapis
       --kube-context string      name of the kubeconfig context to use
       --kubeconfig string        path to the kubeconfig file
+      --mapfile string           path to the API mapping file (default "config/Map.yaml")
       --namespace string         namespace scope of the release. For Helm v2, this is the Tiller namespace (e.g. kube-system)
   -s, --release-storage string   for Helm v2 only - release storage type/object. It can be 'secrets' or 'configmaps'. This is only used with the 'tiller-out-cluster' flag (default "secrets")
       --tiller-out-cluster       for Helm v2 only - when Tiller is not running in the cluster e.g. Tillerless
@@ -82,6 +85,25 @@ kind: Ingress"
 2020/04/17 13:05:45 Release 'v2-oldapi' with deprecated or removed APIs updated successfully to new version.
 2020/04/17 13:05:45 Map of release 'v2-oldapi' deprecated or removed APIs to supported versions, completed successfully.
 ```
+## API Mapping
+
+The mapping information of deprecated or removed APIs to supported APIs is configured in the [Map.yaml](https://github.com/hickeyma/helm-mapkubeapis/blob/master/config/Map.yaml) file. The file is a list of entries similar to the following:
+
+```yaml
+ - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Deployment"
+    newAPI: "apiVersion: apps/v1\nkind: Deployment"
+    deprecatedInVersion: "1.9"
+    removedInVersion: "1.16"
+```
+
+The plugin when performing update of a Helm release metadata first loads the map file from the `config` directory where the plugin is run from. If the map file is a different name or in a different location, you can use the `--mapfile` flag to specify the different mapping file.
+
+The OOTB mapping file is configured as follows:
+- The search and replace strings are in order with `apiVersion` first and then `kind`. This should be changed if the Helm release metadata is rendered with different search/replace string.
+- The strings contain UNIX/Linux line feeds. This means that `\n` is used to signify line separation between properties in the strings. This should be changed if the Helm release metadata is rendered in Windows or Mac.
+- It contains mappings where APIs are deprecated in different Kubernetes versions. If the deprecated version of an API is later than your current Kubernetes cluster, you need to disable/comment out the entry before running the plugin.
+
+> Note: The Helm release metadata can be checked for Helm 3 by following the steps in [Updating API Versions of a Release Manifest](https://helm.sh/docs/topics/kubernetes_apis/#updating-api-versions-of-a-release-manifest).
 
 ## Background to the issue
 
