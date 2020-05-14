@@ -41,4 +41,4 @@ mv "releases/v${version}/mapkubeapis" "bin/mapkubeapis" || \
 mv "releases/v${version}/plugin.yaml" .
 mv "releases/v${version}/README.md" .
 mv "releases/v${version}/LICENSE" .
-mv "releases/v${version}/Map.yaml" "config/Map.yaml"
+mv "releases/v${version}/config/Map.yaml" "config/Map.yaml"

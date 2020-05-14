@@ -17,5 +17,6 @@ archives:
       - LICENSE
       - plugin.yaml
       - scripts/install_plugin.sh
+      - config/Map.yaml
 checksum:
   name_template: 'checksums.txt'
