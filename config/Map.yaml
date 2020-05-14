@@ -54,7 +54,7 @@ mappings:
   - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Ingress"
     newAPI: "apiVersion: networking.k8s.io/v1beta1\nkind: Ingress"
     deprecatedInVersion: "1.14"
-    removedInVersion: "1.16"
+    removedInVersion: "1.22"
 
   # Do NOT enable this prior to Kubernetes v1.17
   # - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRole"
