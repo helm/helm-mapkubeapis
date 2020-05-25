@@ -22,6 +22,7 @@ import (
 	"os"
 
 	utils "github.com/maorfr/helm-plugin-utils/pkg"
+	"github.com/pkg/errors"
 
 	"k8s.io/helm/pkg/storage"
 	"k8s.io/helm/pkg/storage/driver"
@@ -30,8 +31,11 @@ import (
 )
 
 // GetStorageDriver return handle to Helm v2 baackend storage driver
-func GetStorageDriver(mapOptions common.MapOptions) *storage.Storage {
+func GetStorageDriver(mapOptions common.MapOptions) (*storage.Storage, error) {
 	clientSet := utils.GetClientSetWithKubeConfig(mapOptions.KubeConfig.File, mapOptions.KubeConfig.Context)
+	if clientSet == nil {
+		return nil, errors.Errorf("kubernetes cluster unreachable")
+	}
 	namespace := mapOptions.ReleaseNamespace
 	storageType := getStorageType(mapOptions)
 
@@ -39,11 +43,11 @@ func GetStorageDriver(mapOptions common.MapOptions) *storage.Storage {
 	case "configmap", "configmaps", "":
 		cfgMaps := driver.NewConfigMaps(clientSet.CoreV1().ConfigMaps(namespace))
 		cfgMaps.Log = newLogger("storage/driver").Printf
-		return storage.Init(cfgMaps)
+		return storage.Init(cfgMaps), nil
 	case "secret", "secrets":
 		secrets := driver.NewSecrets(clientSet.CoreV1().Secrets(namespace))
 		secrets.Log = newLogger("storage/driver").Printf
-		return storage.Init(secrets)
+		return storage.Init(secrets), nil
 	default:
 		// Not sure what to do here.
 		panic("Unknown storage driver")
