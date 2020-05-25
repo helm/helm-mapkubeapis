@@ -17,9 +17,12 @@ limitations under the License.
 package common
 
 import (
+	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
+	utils "github.com/maorfr/helm-plugin-utils/pkg"
 	"github.com/pkg/errors"
 
 	"github.com/hickeyma/helm-mapkubeapis/pkg/mapping"
@@ -47,8 +50,8 @@ const UpgradeDescription = "Kubernetes deprecated API upgrade - DO NOT rollback 
 
 // ReplaceManifestUnSupportedAPIs returns a release manifest with deprecated or removed
 // Kubernetes APIs updated to supported APIs
-func ReplaceManifestUnSupportedAPIs(origManifest, mapFile, kubeVersion string) (string, error) {
-	var modifiedManifest string
+func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig KubeConfig) (string, error) {
+	var modifiedManifest = origManifest
 	var err error
 	var mapMetadata *mapping.Metadata
 
@@ -57,38 +60,59 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile, kubeVersion string) (
 		return "", errors.Wrapf(err, "Failed to load mapping file: %s", mapFile)
 	}
 
+	// get the Kubernetes server version
+	kubeVersionStr, err := getKubernetesServerVersion(kubeConfig)
+	if err != nil {
+		return "", err
+	}
+	kubeVersion, err := strconv.ParseFloat(kubeVersionStr, 32)
+	if err != nil {
+		errors.Wrap(err, "Failed to get Kubernetes server version")
+	}
+
 	// Check for deprecated or removed APIs and map accordingly to supported versions
 	for _, mapping := range mapMetadata.Mappings {
 		deprecatedAPI := mapping.DeprecatedAPI
 		supportedAPI := mapping.NewAPI
-		if kubeVersion != "" {
-			var version string
-			if mapping.DeprecatedInVersion != "" {
-				version = mapping.DeprecatedInVersion
-			} else {
-				version = mapping.RemovedInVersion
-			}
-			if version > kubeVersion {
-				log.Printf("The following API does not required mapping now as it is not deprecated till Kubernetes '%s':\n\"%s\"\n", mapping.DeprecatedInVersion,
-					deprecatedAPI)
-				continue
-			}
-		}
-		var modManifestForAPI string
-		if len(modifiedManifest) <= 0 {
-			modManifestForAPI = strings.ReplaceAll(origManifest, deprecatedAPI, supportedAPI)
-			if modManifestForAPI != origManifest {
-				log.Printf("Found deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
-			}
-
+		var apiVersionStr string
+		if mapping.DeprecatedInVersion != "" {
+			apiVersionStr = mapping.DeprecatedInVersion
 		} else {
-			modManifestForAPI = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
-			if modManifestForAPI != modifiedManifest {
-				log.Printf("Found deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
+			apiVersionStr = mapping.RemovedInVersion
+		}
+		apiVersion, err := strconv.ParseFloat(apiVersionStr, 32)
+		if err != nil {
+			errors.Wrapf(err, "Failed to get the deprecated or removed Kubernetes version for API: %s", deprecatedAPI)
+		}
+
+		var modManifestForAPI string
+		var modified = false
+		modManifestForAPI = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
+		if modManifestForAPI != modifiedManifest {
+			modified = true
+			log.Printf("Found deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
+		}
+		if modified {
+			if apiVersion > kubeVersion {
+				log.Printf("The following API does not required mapping now as it is not valid till Kubernetes '%s':\n\"%s\"\n", apiVersionStr,
+					deprecatedAPI)
+			} else {
+				modifiedManifest = modManifestForAPI
 			}
 		}
-		modifiedManifest = modManifestForAPI
 	}
 
 	return modifiedManifest, nil
+}
+
+func getKubernetesServerVersion(kubeConfig KubeConfig) (string, error) {
+	clientSet := utils.GetClientSetWithKubeConfig(kubeConfig.File, kubeConfig.Context)
+	if clientSet == nil {
+		return "", errors.Errorf("kubernetes cluster unreachable")
+	}
+	kubeVersion, err := clientSet.ServerVersion()
+	if err != nil {
+		return "", errors.Wrap(err, "kubernetes cluster unreachable")
+	}
+	return fmt.Sprintf("%s.%s", kubeVersion.Major, kubeVersion.Minor), nil
 }

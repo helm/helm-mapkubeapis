@@ -21,6 +21,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"k8s.io/helm/pkg/proto/hapi/release"
 	"k8s.io/helm/pkg/storage"
 	"k8s.io/helm/pkg/timeconv"
@@ -33,15 +35,18 @@ import (
 func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 	var releaseName = mapOptions.ReleaseName
 	log.Printf("Get release '%s' latest version.\n", releaseName)
-	storageDriver := GetStorageDriver(mapOptions)
+	storageDriver, err := GetStorageDriver(mapOptions)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to get release '%s' latest version", mapOptions.ReleaseName)
+	}
 	releaseToMap, err := getLatestRelease(releaseName, storageDriver)
 	if err != nil {
-		return fmt.Errorf("Failed to get release '%s' latest version due to the following error: %s", mapOptions.ReleaseName, err)
+		return errors.Wrapf(err, "Failed to get release '%s' latest version", mapOptions.ReleaseName)
 	}
 
 	log.Printf("Check release '%s' for deprecated or removed APIs...\n", releaseName)
 	var origManifest = releaseToMap.Manifest
-	modifiedManifest, err := common.ReplaceManifestUnSupportedAPIs(origManifest, mapOptions.MapFile, "")
+	modifiedManifest, err := common.ReplaceManifestUnSupportedAPIs(origManifest, mapOptions.MapFile, mapOptions.KubeConfig)
 	if err != nil {
 		return err
 	}
@@ -54,7 +59,7 @@ func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 	log.Printf("Deprecated or removed APIs exist, updating release: %s.\n", releaseName)
 	if !mapOptions.DryRun {
 		if err := updateRelease(releaseToMap, modifiedManifest, storageDriver); err != nil {
-			return fmt.Errorf("Failed to update release '%s' due to the following error: %s", releaseName, err)
+			return errors.Wrapf(err, "Failed to update release '%s'", releaseName)
 		}
 		log.Printf("Release '%s' with deprecated or removed APIs updated successfully to new version.\n", releaseName)
 	}
@@ -71,7 +76,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, storag
 	log.Printf("Set status of release version '%s' to 'superseded'.\n", getReleaseVersionName(origRelease))
 	origRelease.Info.Status.Code = release.Status_SUPERSEDED
 	if err := storageDriver.Update(origRelease); err != nil {
-		return fmt.Errorf("failed to update release version '%s': %s", getReleaseVersionName(origRelease), err)
+		return errors.Wrapf(err, "failed to update release version '%s'", getReleaseVersionName(origRelease))
 	}
 	log.Printf("Release version '%s' updated successfully.\n", getReleaseVersionName(origRelease))
 
@@ -85,7 +90,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, storag
 	newRelease.Info.Status.Code = release.Status_DEPLOYED
 	log.Printf("Add release version '%s' with updated supported APIs.\n", getReleaseVersionName(origRelease))
 	if err := storageDriver.Create(newRelease); err != nil {
-		return fmt.Errorf("failed to create new release version '%s': %s", getReleaseVersionName(origRelease), err)
+		return errors.Wrapf(err, "failed to create new release version '%s'", getReleaseVersionName(origRelease))
 	}
 	log.Printf("Release version '%s' added successfully.\n", getReleaseVersionName(origRelease))
 	return nil

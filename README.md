@@ -101,7 +101,7 @@ The plugin when performing update of a Helm release metadata first loads the map
 The OOTB mapping file is configured as follows:
 - The search and replace strings are in order with `apiVersion` first and then `kind`. This should be changed if the Helm release metadata is rendered with different search/replace string.
 - The strings contain UNIX/Linux line feeds. This means that `\n` is used to signify line separation between properties in the strings. This should be changed if the Helm release metadata is rendered in Windows or Mac.
-- It contains mappings where APIs are deprecated in different Kubernetes versions. If the deprecated version of an API is later than your current Kubernetes cluster, you need to disable/comment out the entry before running the plugin.
+- Each mapping contains the Kubernetes version that the API is deprecated and removed in. This information is important as the plugin checks that the deprecated version (uses removed if deprecated unset) is later than the Kubernetes version that it is running against. If it is then no mapping occurs for this API as it not yet deprecated in this Kubernetes version and hence the new API is not yet supported. Otherwise, the mapping can proceed.
 
 > Note: The Helm release metadata can be checked for Helm 3 by following the steps in [Updating API Versions of a Release Manifest](https://helm.sh/docs/topics/kubernetes_apis/#updating-api-versions-of-a-release-manifest).
 

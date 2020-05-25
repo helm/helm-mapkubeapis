@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/pkg/errors"
+
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
 
@@ -31,20 +33,19 @@ import (
 func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 	cfg, err := GetActionConfig(mapOptions.ReleaseNamespace, mapOptions.KubeConfig)
 	if err != nil {
-		return fmt.Errorf("Failed to get Helm action configuration due to the following error: %s", err)
+		return errors.Wrap(err, "failed to get Helm action configuration")
 	}
 
 	var releaseName = mapOptions.ReleaseName
 	log.Printf("Get release '%s' latest version.\n", releaseName)
 	releaseToMap, err := getLatestRelease(releaseName, cfg)
 	if err != nil {
-		return fmt.Errorf("Failed to get release '%s' latest version due to the following error: %s", mapOptions.ReleaseName, err)
+		return errors.Wrapf(err, "failed to get release '%s' latest version", mapOptions.ReleaseName)
 	}
 
 	log.Printf("Check release '%s' for deprecated or removed APIs...\n", releaseName)
 	var origManifest = releaseToMap.Manifest
-	//kubeVersion := cfg.Capabilities.KubeVersion.Version
-	modifiedManifest, err := common.ReplaceManifestUnSupportedAPIs(origManifest, mapOptions.MapFile, "")
+	modifiedManifest, err := common.ReplaceManifestUnSupportedAPIs(origManifest, mapOptions.MapFile, mapOptions.KubeConfig)
 	if err != nil {
 		return err
 	}
@@ -57,7 +58,7 @@ func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 	log.Printf("Deprecated or removed APIs exist, updating release: %s.\n", releaseName)
 	if !mapOptions.DryRun {
 		if err := updateRelease(releaseToMap, modifiedManifest, cfg); err != nil {
-			return fmt.Errorf("Failed to update release '%s' due to the following error: %s", releaseName, err)
+			return errors.Wrapf(err, "failed to update release '%s'", releaseName)
 		}
 		log.Printf("Release '%s' with deprecated or removed APIs updated successfully to new version.\n", releaseName)
 	}
@@ -70,7 +71,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	log.Printf("Set status of release version '%s' to 'superseded'.\n", getReleaseVersionName(origRelease))
 	origRelease.Info.Status = release.StatusSuperseded
 	if err := cfg.Releases.Update(origRelease); err != nil {
-		return fmt.Errorf("failed to update release version '%s': %s", getReleaseVersionName(origRelease), err)
+		return errors.Wrapf(err, "failed to update release version '%s': %s", getReleaseVersionName(origRelease))
 	}
 	log.Printf("Release version '%s' updated successfully.\n", getReleaseVersionName(origRelease))
 
@@ -84,7 +85,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	newRelease.Info.Status = release.StatusDeployed
 	log.Printf("Add release version '%s' with updated supported APIs.\n", getReleaseVersionName(origRelease))
 	if err := cfg.Releases.Create(newRelease); err != nil {
-		return fmt.Errorf("failed to create new release version '%s': %s", getReleaseVersionName(origRelease), err)
+		return errors.Wrapf(err, "failed to create new release version '%s': %s", getReleaseVersionName(origRelease))
 	}
 	log.Printf("Release version '%s' added successfully.\n", getReleaseVersionName(origRelease))
 	return nil
