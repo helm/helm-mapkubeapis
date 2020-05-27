@@ -30,7 +30,7 @@ import (
 	common "github.com/hickeyma/helm-mapkubeapis/pkg/common"
 )
 
-// GetStorageDriver return handle to Helm v2 baackend storage driver
+// GetStorageDriver return handle to Helm v2 backend storage driver
 func GetStorageDriver(mapOptions common.MapOptions) (*storage.Storage, error) {
 	clientSet := utils.GetClientSetWithKubeConfig(mapOptions.KubeConfig.File, mapOptions.KubeConfig.Context)
 	if clientSet == nil {

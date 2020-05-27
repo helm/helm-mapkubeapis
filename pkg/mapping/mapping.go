@@ -16,7 +16,7 @@ limitations under the License.
 
 package mapping
 
-// Mapping describes mappings which defines the Kuberbetes
+// Mapping describes mappings which defines the Kubernetes
 // API deprecations and the new replacement API
 type Mapping struct {
 	// From is the API looking to be mapped
