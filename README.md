@@ -60,7 +60,7 @@ Flags:
 Example output:
 
 ```console
-$ helm mapkubeapis oldapi-chrt --namespace kube-system --v2
+$ helm mapkubeapis v2-oldapi --namespace kube-system --v2
 2020/04/17 13:05:45 Release 'v2-oldapi' will be checked for deprecated or removed Kubernetes APIs and will be updated if necessary to supported API versions.
 2020/04/17 13:05:45 Get release 'v2-oldapi' latest version.
 2020/04/17 13:05:45 Check release 'v2-oldapi' for deprecated or removed APIs...
