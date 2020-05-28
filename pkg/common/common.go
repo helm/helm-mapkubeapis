@@ -17,13 +17,12 @@ limitations under the License.
 package common
 
 import (
-	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	utils "github.com/maorfr/helm-plugin-utils/pkg"
 	"github.com/pkg/errors"
+	"golang.org/x/mod/semver"
 
 	"github.com/hickeyma/helm-mapkubeapis/pkg/mapping"
 )
@@ -65,8 +64,7 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 	if err != nil {
 		return "", err
 	}
-	kubeVersion, err := strconv.ParseFloat(kubeVersionStr, 32)
-	if err != nil {
+	if !semver.IsValid(kubeVersionStr) {
 		errors.Wrap(err, "Failed to get Kubernetes server version")
 	}
 
@@ -80,8 +78,7 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 		} else {
 			apiVersionStr = mapping.RemovedInVersion
 		}
-		apiVersion, err := strconv.ParseFloat(apiVersionStr, 32)
-		if err != nil {
+		if !semver.IsValid(apiVersionStr) {
 			errors.Wrapf(err, "Failed to get the deprecated or removed Kubernetes version for API: %s", deprecatedAPI)
 		}
 
@@ -93,7 +90,7 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 			log.Printf("Found deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
 		}
 		if modified {
-			if apiVersion > kubeVersion {
+			if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
 				log.Printf("The following API does not required mapping now as it is not valid till Kubernetes '%s':\n\"%s\"\n", apiVersionStr,
 					deprecatedAPI)
 			} else {
@@ -114,5 +111,5 @@ func getKubernetesServerVersion(kubeConfig KubeConfig) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "kubernetes cluster unreachable")
 	}
-	return fmt.Sprintf("%s.%s", kubeVersion.Major, kubeVersion.Minor), nil
+	return kubeVersion.GitVersion, nil
 }
