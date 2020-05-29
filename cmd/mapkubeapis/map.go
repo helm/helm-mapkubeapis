@@ -56,7 +56,7 @@ func newMapCmd(out io.Writer, args []string) *cobra.Command {
 				cmd.Help()
 				os.Exit(0)
 			} else if len(args) > 1 {
-				return errors.New("Only one release name may be passed at a time")
+				return errors.New("only one release name may be passed at a time")
 			}
 			return nil
 		},
