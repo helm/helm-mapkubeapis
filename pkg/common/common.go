@@ -65,7 +65,7 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 		return "", err
 	}
 	if !semver.IsValid(kubeVersionStr) {
-		errors.Wrap(err, "Failed to get Kubernetes server version")
+		return "", errors.Errorf("Failed to get Kubernetes server version")
 	}
 
 	// Check for deprecated or removed APIs and map accordingly to supported versions
@@ -79,7 +79,7 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 			apiVersionStr = mapping.RemovedInVersion
 		}
 		if !semver.IsValid(apiVersionStr) {
-			errors.Wrapf(err, "Failed to get the deprecated or removed Kubernetes version for API: %s", deprecatedAPI)
+			return "", errors.Errorf("Failed to get the deprecated or removed Kubernetes version for API: %s", strings.ReplaceAll(deprecatedAPI, "\n", " "))
 		}
 
 		var modManifestForAPI string
