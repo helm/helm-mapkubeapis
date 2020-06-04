@@ -52,8 +52,11 @@ func newMapCmd(out io.Writer, args []string) *cobra.Command {
 		Long:         "Map release deprecated or removed Kubernetes APIs in-place",
 		SilenceUsage: true,
 		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) != 1 {
-				return errors.New("name of release to be mapped needs to be passed")
+			if len(args) == 0 {
+				cmd.Help()
+				os.Exit(1)
+			} else if len(args) > 1 {
+				return errors.New("only one release name may be passed at a time")
 			}
 			return nil
 		},
