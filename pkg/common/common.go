@@ -91,7 +91,8 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 		}
 		if modified {
 			if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
-				log.Printf("The following API does not required mapping now as it is not valid till Kubernetes '%s':\n\"%s\"\n", apiVersionStr,
+				log.Printf("The following API does not require mapping as the "+
+					"API is not deprecated or removed in Kubernetes '%s':\n\"%s\"\n", apiVersionStr,
 					deprecatedAPI)
 			} else {
 				modifiedManifest = modManifestForAPI
