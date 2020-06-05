@@ -5,15 +5,15 @@
 [![CircleCI](https://circleci.com/gh/hickeyma/helm-mapkubeapis/tree/master.svg?style=svg)](https://circleci.com/gh/hickeyma/helm-mapkubeapis/tree/master)
 [![Release](https://img.shields.io/github/release/hickeyma/helm-mapkubeapis.svg?style=flat-square)](https://github.com/hickeyma/helm-mapkubeapis/releases/latest)
 
-mapkubeapis is a simple Helm plugin which is designed to update Helm release metadata that contains deprecated or removed Kubernetes APIs to a new instance with supported Kubernetes APIs. Jump to [background to the issue](#background-to-the-issue) for more details on the problem space that the plugin solves.
+`mapkubeapis` is a Helm v2/v3 plugin which updates in-place Helm release metadata that contains deprecated or removed Kubernetes APIs to a new instance with supported Kubernetes APIs. Jump to [background to the issue](#background-to-the-issue) for more details on the problem space that the plugin solves.
+
+> Note: Charts need to be updated also to supported Kubernetes APIs to avoid failure during deployment in a Kubernetes version. This is a separate task to the plugin. 
 
 ## Prerequisite
 
-- Kubernetes 1.16+
 - Helm client with `mapkubeapis` plugin installed on the same system
 - Access to the cluster(s) that Helm manages. This access is similar to `kubectl` access using [kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/).
   The `--kubeconfig`, `--kube-context` and `--namespace` flags can be used to set the kubeconfig path, kube context and namespace context to override the environment configuration.
-- Check the [API Mapping](#api-mapping) before running, as you may need to disable any mappings that are not deprecated in your Kubernetes cluster version.
 - If you try and upgrade a release with unsupported APIs then the upgrade will fail. This is ok in Helm v3 as it will not generate a failed release for Helm. However, Helm v2 does produce a failed release. This needs to be removed before running the plugin on the release. The command to remove the failed release version is: `kubectl delete configmap/secret <release_name>.v<failed_version_number> --namespace <tiller_namespace>`
 
 ## Install
@@ -92,8 +92,8 @@ The mapping information of deprecated or removed APIs to supported APIs is confi
 ```yaml
  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Deployment"
     newAPI: "apiVersion: apps/v1\nkind: Deployment"
-    deprecatedInVersion: "1.9"
-    removedInVersion: "1.16"
+    deprecatedInVersion: "v1.9"
+    removedInVersion: "v1.16"
 ```
 
 The plugin when performing update of a Helm release metadata first loads the map file from the `config` directory where the plugin is run from. If the map file is a different name or in a different location, you can use the `--mapfile` flag to specify the different mapping file.
@@ -103,31 +103,19 @@ The OOTB mapping file is configured as follows:
 - The strings contain UNIX/Linux line feeds. This means that `\n` is used to signify line separation between properties in the strings. This should be changed if the Helm release metadata is rendered in Windows or Mac.
 - Each mapping contains the Kubernetes version that the API is deprecated and removed in. This information is important as the plugin checks that the deprecated version (uses removed if deprecated unset) is later than the Kubernetes version that it is running against. If it is then no mapping occurs for this API as it not yet deprecated in this Kubernetes version and hence the new API is not yet supported. Otherwise, the mapping can proceed.
 
-> Note: The Helm release metadata can be checked for Helm 3 by following the steps in [Updating API Versions of a Release Manifest](https://helm.sh/docs/topics/kubernetes_apis/#updating-api-versions-of-a-release-manifest).
+> Note: The Helm release metadata can be checked by following the steps in:
+- Helm v2: [Updating API Versions of a Release Manifest](https://github.com/helm/helm/blob/dev-v2/docs/kubernetes_apis.md#updating-api-versions-of-a-release-manifest)
+- Helm v3: [Updating API Versions of a Release Manifest](https://helm.sh/docs/topics/kubernetes_apis/#updating-api-versions-of-a-release-manifest)
 
 ## Background to the issue
 
-Kubernetes is an API-driven system and the API evolves over time to reflect the evolving understanding of the problem space. This is common practice across systems and their APIs. An important part of evolving APIs is a good deprecation policy and process to inform users of how changes to APIs are implemented. In other words, consumers of your API need to know in advance and in what release an API will be removed or changed. This removes the element of surprise and breaking changes to consumers. 
+For details on the background to this issue, it is recommended to read the docs appropriate to your Helm version. The docs can be accessed as follows:
+- Helm v2: [Deprecated Kubernetes APIs](https://github.com/helm/helm/blob/dev-v2/docs/kubernetes_apis.md)
+- Helm v3: [Deprecated Kubernetes APIs](https://helm.sh/docs/topics/kubernetes_apis)
 
-The [Kubernetes deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/) documents how Kubernetes handles the changes to its API versions. The policy for deprecation states the timeframe that API versions will be supported following a deprecation announcement. It is therefore important to be aware of deprecation announcements and know when API versions will be removed, to help minimize the effect.
+The Helm documentation describes the problem when Helm releases that are already deployed with APIs that are no longer supported. If the Kubernetes cluster (containing such releases) is updated to a version where the APIs are removed, then Helm becomes unable to manage such releases anymore. It does not matter if the chart being passed in the upgrade contains the supported API versions or not.
 
-This is an example of an announcement [for the removal of deprecated API versions in Kubernetes 1.16](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/) and was advertised a few months prior to the release. These API versions would have been announced for deprecation prior to this again. This shows that there is a good policy in place which informs consumers of the API versions. 
-
-Helm chart templates uses Kubernetes `API version` and `Kind` properties when defining Kubernetes resources, similar to  manifest files. This means that Helm users and chart maintainers need to be aware when Kubernetes API versions have been deprecated and in what Kubernetes version they will removed.
-
-This is not a big issue when installing a chart as it will just fail if the chart API versions are no longer supported. In this situation, you then need to get the latest chart version (if the maintainer update it) or update the chart yourself.
-
-This does however become a problem for Helm releases that are already deployed with APIs that are no longer supported. If the Kubernetes cluster (containing such releases) is updated to a version where the APIs are removed, then Helm becomes unable to manage such releases anymore. It does not matter if the chart being passed in the upgrade contains the supported API versions or not.
- 
-It fails with an error similar to the following:
-
-```
-Error: UPGRADE FAILED: unable to build kubernetes objects from current release manifest: unable to recognize "": no matches for kind "Deployment" in version "apps/v1beta1"
-```
-
-Helm fails because it attempts to create a diff patch between the current deployed release which contains the Kubernetes APIs that are removed against the chart you are passing with the updated/supported API versions. The underlying reason for failure is due because when Kubernetes removes an API version, its Go libraries can no longer parse the removed objects and Helm therefore fails calling the libraries.
-
-The `mapkubeapis` plugin fixes the issue by mapping releases which contain deprecated or removed Kubernetes APIs to supported APIs. This is performed inline in the release metadata where the existing release is `superseded` and a new release (metadata only) is added. The deployed Kubernetes resources are updated automatically by Kubernetes during upgrade of its version. Once this operation is completed, you can then upgrade using the chart with supported APIs.
+This is what the `mapkubeapis` plugin resolves. It fixes the issue by mapping releases which contain deprecated or removed Kubernetes APIs to supported APIs. This is performed inline in the release metadata where the existing release is `superseded` and a new release (metadata only) is added. The deployed Kubernetes resources are updated automatically by Kubernetes during upgrade of its version. Once this operation is completed, you can then upgrade using the chart with supported APIs.
 
 ## Developer (From Source) Install
 
@@ -140,7 +128,8 @@ $ mkdir -p ${GOPATH}/src/github.com
 $ cd $_
 $ git clone git@github.com:hickeyma/helm-mapkubeapis.git
 $ cd helm-mapkubeapis
-$ make build
+$ make
+$ export HELM_LINTER_PLUGIN_NO_INSTALL_HOOK=true
 $ helm plugin install <your_path>/helm-mapkubeapis
 ```
 
