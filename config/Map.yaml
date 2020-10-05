@@ -87,7 +87,7 @@ mappings:
     newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBindingList"
     deprecatedInVersion: "v1.17"
     removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta\nkind: ClusterRole"
+  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRole"
     newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole"
     deprecatedInVersion: "v1.17"
     removedInVersion: "v1.22"
