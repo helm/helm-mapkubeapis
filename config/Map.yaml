@@ -39,7 +39,7 @@ mappings:
     newAPI: "apiVersion: apps/v1\nkind: ReplicaSet"
     deprecatedInVersion: "v1.9"
     removedInVersion: "v1.16"
-  - deprecatedAPI: "extensions/v1beta1\nkind: NetworkPolicy"
+  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: NetworkPolicy"
     newAPI: "apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy"
     deprecatedInVersion: "v1.8"
     removedInVersion: "v1.16"
