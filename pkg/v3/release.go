@@ -25,7 +25,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
 
-	common "github.com/hickeyma/helm-mapkubeapis/pkg/common"
+	common "github.com/helm/helm-mapkubeapis/pkg/common"
 )
 
 // MapReleaseWithUnSupportedAPIs checks the latest release version for any deprecated or removed APIs in its metadata

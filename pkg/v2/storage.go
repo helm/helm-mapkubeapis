@@ -27,7 +27,7 @@ import (
 	"k8s.io/helm/pkg/storage"
 	"k8s.io/helm/pkg/storage/driver"
 
-	common "github.com/hickeyma/helm-mapkubeapis/pkg/common"
+	common "github.com/helm/helm-mapkubeapis/pkg/common"
 )
 
 // GetStorageDriver return handle to Helm v2 backend storage driver

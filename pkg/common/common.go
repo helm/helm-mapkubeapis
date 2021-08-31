@@ -24,7 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
 
-	"github.com/hickeyma/helm-mapkubeapis/pkg/mapping"
+	"github.com/helm/helm-mapkubeapis/pkg/mapping"
 )
 
 // KubeConfig are the Kubernetes configuration settings
