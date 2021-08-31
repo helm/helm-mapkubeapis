@@ -1,9 +1,9 @@
 # Helm mapkubeapis Plugin
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Go Report Card](https://goreportcard.com/badge/github.com/hickeyma/helm-mapkubeapis)](https://goreportcard.com/report/github.com/hickeyma/helm-mapkubeapis)
-[![CircleCI](https://circleci.com/gh/hickeyma/helm-mapkubeapis/tree/master.svg?style=svg)](https://circleci.com/gh/hickeyma/helm-mapkubeapis/tree/master)
-[![Release](https://img.shields.io/github/release/hickeyma/helm-mapkubeapis.svg?style=flat-square)](https://github.com/hickeyma/helm-mapkubeapis/releases/latest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/helm/helm-mapkubeapis)](https://goreportcard.com/report/github.com/helm/helm-mapkubeapis)
+[![CircleCI](https://circleci.com/gh/helm/helm-mapkubeapis/tree/master.svg?style=svg)](https://circleci.com/gh/helm/helm-mapkubeapis/tree/master)
+[![Release](https://img.shields.io/github/release/helm/helm-mapkubeapis.svg?style=flat-square)](https://github.com/helm/helm-mapkubeapis/releases/latest)
 
 `mapkubeapis` is a Helm v2/v3 plugin which updates in-place Helm release metadata that contains deprecated or removed Kubernetes APIs to a new instance with supported Kubernetes APIs. Jump to [background to the issue](#background-to-the-issue) for more details on the problem space that the plugin solves.
 
@@ -24,9 +24,9 @@
 Based on the version in `plugin.yaml`, release binary will be downloaded from GitHub:
 
 ```console
-$ helm plugin install https://github.com/hickeyma/helm-mapkubeapis
-Downloading and installing helm-mapkubeapis v0.0.1 ...
-https://github.com/hickeyma/helm-mapkubeapis/releases/download/v0.0.1/helm-mapkubeapis_0.0.1_darwin_amd64.tar.gz
+$ helm plugin install https://github.com/helm/helm-mapkubeapis
+Downloading and installing helm-mapkubeapis v0.1.0 ...
+https://github.com/helm/helm-mapkubeapis/releases/download/v0.1.0/helm-mapkubeapis_0.1.0_darwin_amd64.tar.gz
 Installed plugin: mapkubeapis
 ```
 
@@ -36,7 +36,7 @@ Helm's plugin install hook system relies on `/bin/sh`, regardless of the operati
 ```
 $ wget https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz
 $ tar xzf helm-v3.0.0-linux-amd64.tar.gz
-$ ./linux-amd64/helm plugin install https://github.com/hickeyma/helm-mapkubeapis
+$ ./linux-amd64/helm plugin install https://github.com/helm/helm-mapkubeapis
 ```
 
 ## Usage
@@ -90,7 +90,7 @@ kind: Ingress"
 ```
 ## API Mapping
 
-The mapping information of deprecated or removed APIs to supported APIs is configured in the [Map.yaml](https://github.com/hickeyma/helm-mapkubeapis/blob/master/config/Map.yaml) file. The file is a list of entries similar to the following:
+The mapping information of deprecated or removed APIs to supported APIs is configured in the [Map.yaml](https://github.com/helm/helm-mapkubeapis/blob/master/config/Map.yaml) file. The file is a list of entries similar to the following:
 
 ```yaml
  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Deployment"
@@ -124,12 +124,12 @@ This is what the `mapkubeapis` plugin resolves. It fixes the issue by mapping re
 
 If you would like to handle the build yourself, this is the recommended way to do it.
 
-You must first have [Go v1.13](http://golang.org) installed, and then you run:
+You must first have [Go v1.13+](http://golang.org) installed, and then you run:
 
 ```console
 $ mkdir -p ${GOPATH}/src/github.com
 $ cd $_
-$ git clone git@github.com:hickeyma/helm-mapkubeapis.git
+$ git clone git@github.com:helm/helm-mapkubeapis.git
 $ cd helm-mapkubeapis
 $ make
 $ export HELM_LINTER_PLUGIN_NO_INSTALL_HOOK=true

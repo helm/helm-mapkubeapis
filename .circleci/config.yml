@@ -12,15 +12,15 @@ jobs:
             shellcheck -x scripts/install_plugin.sh
   untagged-build:
     docker:
-      - image: circleci/golang:1.13
-    working_directory: /go/src/github.com/hickeyma/helm-mapkubeapis
+      - image: circleci/golang:1.16
+    working_directory: /go/src/github.com/helm/helm-mapkubeapis
     steps:
       - checkout
       - run: make build
   tagged-build:
     docker:
-      - image: circleci/golang:1.13
-    working_directory: /go/src/github.com/hickeyma/helm-mapkubeapis
+      - image: circleci/golang:1.16
+    working_directory: /go/src/github.com/helm/helm-mapkubeapis
     steps:
       - checkout
       - run: curl -sL https://raw.githubusercontent.com/goreleaser/get/master/get | VERSION=v0.117.2 bash

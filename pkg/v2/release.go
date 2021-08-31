@@ -27,7 +27,7 @@ import (
 	"k8s.io/helm/pkg/storage"
 	"k8s.io/helm/pkg/timeconv"
 
-	common "github.com/hickeyma/helm-mapkubeapis/pkg/common"
+	common "github.com/helm/helm-mapkubeapis/pkg/common"
 )
 
 // MapReleaseWithUnSupportedAPIs checks the latest release version for any deprecated or removed APIs in its metadata
