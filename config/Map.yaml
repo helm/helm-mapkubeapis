@@ -50,7 +50,7 @@ mappings:
   - deprecatedAPI: "apiVersion: apiextensions.k8s.io/v1beta1\nkind: CustomResourceDefinition"
     newAPI: "apiVersion: apiextensions.k8s.io/v1\nkind: CustomResourceDefinition"
     deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.19"
+    removedInVersion: "v1.22"
   - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Ingress"
     newAPI: "apiVersion: networking.k8s.io/v1beta1\nkind: Ingress"
     deprecatedInVersion: "v1.14"
