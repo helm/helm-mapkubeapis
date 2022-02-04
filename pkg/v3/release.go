@@ -56,7 +56,7 @@ func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 	}
 
 	if mapOptions.DryRun {
-		log.Printf("Deprecated or removed APIs exist, no changes will be made to release: %s.\n", releaseName)
+		log.Printf("Deprecated or removed APIs exist, for release: %s.\n", releaseName)
 	} else {
 		log.Printf("Deprecated or removed APIs exist, updating release: %s.\n", releaseName)
 		if err := updateRelease(releaseToMap, modifiedManifest, cfg); err != nil {
