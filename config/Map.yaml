@@ -141,7 +141,7 @@ mappings:
     removedInVersion: "v1.22"
   - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: StorageClass\n"
     newAPI: "apiVersion: storage.k8s.io/v1\nkind: StorageClass\n"
-    deprecatedInVersion: "v1.6"
+    deprecatedInVersion: "v1.16"
     removedInVersion: "v1.22"
   - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: VolumeAttachment\n"
     newAPI: "apiVersion: storage.k8s.io/v1\nkind: VolumeAttachment\n"
