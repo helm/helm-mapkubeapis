@@ -132,7 +132,7 @@ mappings:
     deprecatedInVersion: "v1.19"
     removedInVersion: "v1.22"
   - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: CSIDriver\n"
-    newAPI: "apiVersion: storage.k8s.io/v1\nkind: CSIDriver \n"
+    newAPI: "apiVersion: storage.k8s.io/v1\nkind: CSIDriver\n"
     deprecatedInVersion: "v1.19"
     removedInVersion: "v1.22"
   - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: CSINode\n"
