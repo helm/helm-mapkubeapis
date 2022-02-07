@@ -82,20 +82,14 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 			return "", errors.Errorf("Failed to get the deprecated or removed Kubernetes version for API: %s", strings.ReplaceAll(deprecatedAPI, "\n", " "))
 		}
 
-		var modManifestForAPI string
-		var modified = false
-		modManifestForAPI = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
-		if modManifestForAPI != modifiedManifest {
-			modified = true
-			log.Printf("Found deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", deprecatedAPI, supportedAPI)
-		}
-		if modified {
+		if count := strings.Count(modifiedManifest, deprecatedAPI); count > 0 {
 			if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
 				log.Printf("The following API does not require mapping as the "+
 					"API is not deprecated or removed in Kubernetes '%s':\n\"%s\"\n", apiVersionStr,
 					deprecatedAPI)
 			} else {
-				modifiedManifest = modManifestForAPI
+				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", count, deprecatedAPI, supportedAPI)
+				modifiedManifest = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
 			}
 		}
 	}
