@@ -40,8 +40,6 @@ type MapOptions struct {
 	MapFile          string
 	ReleaseName      string
 	ReleaseNamespace string
-	StorageType      string
-	TillerOutCluster bool
 }
 
 // UpgradeDescription is description of why release was upgraded

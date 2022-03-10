@@ -22,14 +22,11 @@ import (
 
 // EnvSettings defined settings
 type EnvSettings struct {
-	DryRun           bool
-	KubeConfigFile   string
-	KubeContext      string
-	MapFile          string
-	Namespace        string
-	RunV2            bool
-	StorageType      string
-	TillerOutCluster bool
+	DryRun         bool
+	KubeConfigFile string
+	KubeContext    string
+	MapFile        string
+	Namespace      string
 }
 
 // New returns default env settings
@@ -49,8 +46,5 @@ func (s *EnvSettings) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&s.KubeConfigFile, "kubeconfig", "", "path to the kubeconfig file")
 	fs.StringVar(&s.KubeContext, "kube-context", s.KubeContext, "name of the kubeconfig context to use")
 	fs.StringVar(&s.MapFile, "mapfile", s.MapFile, "path to the API mapping file")
-	fs.StringVar(&s.Namespace, "namespace", s.Namespace, "namespace scope of the release. For Helm v2, this is the Tiller namespace e.g. kube-system")
-	fs.BoolVar(&s.RunV2, "v2", false, "run for Helm v2 release. The default is Helm v3.")
-	fs.BoolVar(&s.TillerOutCluster, "tiller-out-cluster", false, "for Helm v2 only - when Tiller is not running in the cluster e.g. Tillerless")
-	fs.StringVarP(&s.StorageType, "release-storage", "s", "secrets", "for Helm v2 only - release storage type/object. It can be 'secrets' or 'configmaps'. This is only used with the 'tiller-out-cluster' flag")
+	fs.StringVar(&s.Namespace, "namespace", s.Namespace, "namespace scope of the release")
 }

@@ -26,7 +26,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/helm/helm-mapkubeapis/pkg/common"
-	v2 "github.com/helm/helm-mapkubeapis/pkg/v2"
 	v3 "github.com/helm/helm-mapkubeapis/pkg/v3"
 )
 
@@ -36,9 +35,6 @@ type MapOptions struct {
 	MapFile          string
 	ReleaseName      string
 	ReleaseNamespace string
-	RunV2            bool
-	StorageType      string
-	TillerOutCluster bool
 }
 
 var (
@@ -99,9 +95,6 @@ func runMap(cmd *cobra.Command, args []string) error {
 		MapFile:          settings.MapFile,
 		ReleaseName:      releaseName,
 		ReleaseNamespace: settings.Namespace,
-		RunV2:            settings.RunV2,
-		StorageType:      settings.StorageType,
-		TillerOutCluster: settings.TillerOutCluster,
 	}
 	kubeConfig := common.KubeConfig{
 		Context: settings.KubeContext,
@@ -129,22 +122,10 @@ func Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 		MapFile:          mapOptions.MapFile,
 		ReleaseName:      mapOptions.ReleaseName,
 		ReleaseNamespace: mapOptions.ReleaseNamespace,
-		StorageType:      mapOptions.StorageType,
-		TillerOutCluster: mapOptions.TillerOutCluster,
 	}
 
-	if mapOptions.RunV2 {
-		// default namespace to the Tiller default namespace
-		if options.ReleaseNamespace == "" {
-			options.ReleaseNamespace = "kube-system"
-		}
-		if err := v2.MapReleaseWithUnSupportedAPIs(options); err != nil {
-			return err
-		}
-	} else {
-		if err := v3.MapReleaseWithUnSupportedAPIs(options); err != nil {
-			return err
-		}
+	if err := v3.MapReleaseWithUnSupportedAPIs(options); err != nil {
+		return err
 	}
 
 	log.Printf("Map of release '%s' deprecated or removed APIs to supported versions, completed successfully.\n", mapOptions.ReleaseName)
