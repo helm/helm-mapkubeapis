@@ -187,4 +187,8 @@ mappings:
     newAPI: "apiVersion: storage.k8s.io/v1\nkind: VolumeAttachment\n"
     deprecatedInVersion: "v1.13"
     removedInVersion: "v1.22"
+  - deprecatedAPI: "apiVersion: autoscaling/v2beta1\nkind: HorizontalPodAutoscaler\n"
+    newAPI: "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\n"
+    deprecatedInVersion: "v1.23"
+    removedInVersion: "v1.25"
 
