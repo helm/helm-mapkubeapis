@@ -187,4 +187,8 @@ mappings:
     newAPI: "apiVersion: storage.k8s.io/v1\nkind: VolumeAttachment\n"
     deprecatedInVersion: "v1.13"
     removedInVersion: "v1.22"
+  - deprecatedAPI: "apiVersion: admissionregistration.k8s.io/v1beta1\nkind: MutatingWebhookConfiguration\n"
+    newAPI: "apiVersion: admissionregistration.k8s.io/v1\nkind: MutatingWebhookConfiguration\n"
+    deprecatedInVersion: "v1.16"
+    removedInVersion: "v1.22"
 
