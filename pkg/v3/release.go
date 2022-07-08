@@ -20,7 +20,9 @@ import (
 	"fmt"
 	"log"
 
+	utils "github.com/maorfr/helm-plugin-utils/pkg"
 	"github.com/pkg/errors"
+	"golang.org/x/mod/semver"
 
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/release"
@@ -43,9 +45,18 @@ func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 		return errors.Wrapf(err, "failed to get release '%s' latest version", mapOptions.ReleaseName)
 	}
 
+	// get the Kubernetes server version
+	kubeVersionStr, err := getKubernetesServerVersion(mapOptions.KubeConfig)
+	if err != nil {
+		return err
+	}
+	if !semver.IsValid(kubeVersionStr) {
+		return errors.Errorf("Failed to get Kubernetes server version")
+	}
+
 	log.Printf("Check release '%s' for deprecated or removed APIs...\n", releaseName)
 	var origManifest = releaseToMap.Manifest
-	modifiedManifest, err := common.ReplaceManifestUnSupportedAPIs(origManifest, mapOptions.MapFile, mapOptions.KubeConfig)
+	modifiedManifest, err := common.ReplaceManifestUnSupportedAPIs(origManifest, mapOptions.MapFile, kubeVersionStr)
 	if err != nil {
 		return err
 	}
@@ -73,7 +84,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	log.Printf("Set status of release version '%s' to 'superseded'.\n", getReleaseVersionName(origRelease))
 	origRelease.Info.Status = release.StatusSuperseded
 	if err := cfg.Releases.Update(origRelease); err != nil {
-		return errors.Wrapf(err, "failed to update release version '%s': %s", getReleaseVersionName(origRelease))
+		return errors.Wrapf(err, "failed to update release version '%s'", getReleaseVersionName(origRelease))
 	}
 	log.Printf("Release version '%s' updated successfully.\n", getReleaseVersionName(origRelease))
 
@@ -87,7 +98,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	newRelease.Info.Status = release.StatusDeployed
 	log.Printf("Add release version '%s' with updated supported APIs.\n", getReleaseVersionName(origRelease))
 	if err := cfg.Releases.Create(newRelease); err != nil {
-		return errors.Wrapf(err, "failed to create new release version '%s': %s", getReleaseVersionName(origRelease))
+		return errors.Wrapf(err, "failed to create new release version '%s'", getReleaseVersionName(origRelease))
 	}
 	log.Printf("Release version '%s' added successfully.\n", getReleaseVersionName(origRelease))
 	return nil
@@ -99,4 +110,16 @@ func getLatestRelease(releaseName string, cfg *action.Configuration) (*release.R
 
 func getReleaseVersionName(rel *release.Release) string {
 	return fmt.Sprintf("%s.v%d", rel.Name, rel.Version)
+}
+
+func getKubernetesServerVersion(kubeConfig common.KubeConfig) (string, error) {
+	clientSet := utils.GetClientSetWithKubeConfig(kubeConfig.File, kubeConfig.Context)
+	if clientSet == nil {
+		return "", errors.Errorf("kubernetes cluster unreachable")
+	}
+	kubeVersion, err := clientSet.ServerVersion()
+	if err != nil {
+		return "", errors.Wrap(err, "kubernetes cluster unreachable")
+	}
+	return kubeVersion.GitVersion, nil
 }

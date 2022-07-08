@@ -16,7 +16,7 @@ type Manifest struct {
 	RestOfManifest map[string]interface{} `json:"-"`
 }
 
-func unmarshallManifest(manifest string) (*Manifest, error) {
+func UnmarshallManifest(manifest string) (*Manifest, error) {
 	m := Manifest{}
 
 	if err := yaml.Unmarshal([]byte(manifest), &m); err != nil {
@@ -32,7 +32,7 @@ func unmarshallManifest(manifest string) (*Manifest, error) {
 	return &m, nil
 }
 
-func (m *Manifest) marshall() (string, error) {
+func (m *Manifest) Marshall() (string, error) {
 	nm, err := yaml.Marshal(m)
 	if err != nil {
 		return "", err
@@ -47,12 +47,31 @@ func (m *Manifest) marshall() (string, error) {
 	return "---\n" + newManifest + restOfManifest, nil
 }
 
-func CheckForOldAPI(manifest string, mapping *mapping.Mapping) (string, error) {
-	m, err := unmarshallManifest(manifest)
+// CheckAllMappings takes a yaml document, not the entire manifest checks if any of the mappings
+// will update it.
+func CheckAllMappings(yamlDocument string, mappings []*mapping.Mapping, kubeVersionStr string) (string, error) {
+	m, err := UnmarshallManifest(yamlDocument)
 	if err != nil {
 		return "", err
 	}
 
+	for _, mapping := range mappings {
+		updated, err := CheckForOldAPI(m, mapping, kubeVersionStr)
+		if err != nil {
+			log.Println(err)
+		}
+
+		if updated {
+			break
+		}
+	}
+	return m.Marshall()
+}
+
+// CheckForOldAPI will check one yaml document (one kube resources) and see if it needs to be
+// updated given a one mapping.
+func CheckForOldAPI(manifest *Manifest, mapping *mapping.Mapping, kubeVersionStr string) (bool, error) {
+	updated := false
 	var apiVersionStr string
 	if mapping.DeprecatedInVersion != "" {
 		apiVersionStr = mapping.DeprecatedInVersion
@@ -60,37 +79,51 @@ func CheckForOldAPI(manifest string, mapping *mapping.Mapping) (string, error) {
 		apiVersionStr = mapping.RemovedInVersion
 	}
 	if !semver.IsValid(apiVersionStr) {
-		return "", errors.Errorf("Failed to get the deprecated or removed Kubernetes version for API: %s %s", mapping.DeprecatedAPI.APIVersion, mapping.DeprecatedAPI.Kind)
+		return false, errors.Errorf("Failed to get the deprecated or removed Kubernetes version for API: %s %s", mapping.DeprecatedAPI.APIVersion, mapping.DeprecatedAPI.Kind)
 	}
 
-	if m.APIVersion == mapping.DeprecatedAPI.APIVersion && m.Kind == mapping.DeprecatedAPI.Kind {
+	if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
+		log.Printf("The resource %s/%s does not require mapping as the "+
+			"API is not deprecated or removed in Kubernetes '%s'\n",
+			mapping.DeprecatedAPI.APIVersion,
+			mapping.DeprecatedAPI.Kind,
+			kubeVersionStr,
+		)
+		return false, nil
+	}
+
+	if manifest.APIVersion == mapping.DeprecatedAPI.APIVersion && manifest.Kind == mapping.DeprecatedAPI.Kind {
 		log.Printf(
-			"Found instance of deprecated or removed Kubernetes API:\n\"%s/%s\"\nSupported API equivalent:\n\"%s/%s\"\n",
+			"Found instance of deprecated or removed Kubernetes API:%s kind:%s\nSupported API:%s kind:%s",
 			mapping.DeprecatedAPI.APIVersion,
 			mapping.DeprecatedAPI.Kind,
 			mapping.NewAPI.APIVersion,
 			mapping.NewAPI.Kind,
 		)
-		m.APIVersion = mapping.NewAPI.APIVersion
-		m.Kind = mapping.NewAPI.Kind
+		updated = true
+		manifest.APIVersion = mapping.NewAPI.APIVersion
+		manifest.Kind = mapping.NewAPI.Kind
 	}
 
-	return m.marshall()
+	return updated, nil
 }
 
+// SeparateDocuments splits one yaml file into several documents, separated by
+// ---
 func SeparateDocuments(manifest string) []string {
 	lines := strings.Split(manifest, "\n")
 	documents := []string{}
-	currentDocument := []string{}
+	document := []string{}
 	for _, line := range lines {
-		if line != "---" {
-			currentDocument = append(currentDocument, line)
-		} else {
-			d := strings.Join(currentDocument, "\n")
-			documents = append(documents, d)
-			currentDocument = []string{}
+		if line == "---" && len(document) > 1 {
+			documents = append(documents, strings.Join(document, "\n")+"\n")
+			document = []string{}
 		}
+		document = append(document, line)
 	}
+
+	// Add the last doc
+	documents = append(documents, strings.Join(document, "\n"))
 
 	return documents
 }
