@@ -20,14 +20,19 @@ package mapping
 // API deprecations and the new replacement API
 type Mapping struct {
 	// From is the API looking to be mapped
-	DeprecatedAPI string `json:"deprecatedAPI"`
+	DeprecatedAPI API `json:"deprecatedAPI"`
 
 	// To is the API to be mapped to
-	NewAPI string `json:"newAPI"`
+	NewAPI API `json:"newAPI"`
 
 	// Kubernetes version API is deprecated in
 	DeprecatedInVersion string `json:"deprecatedInVersion,omitempty"`
 
 	// Kubernetes version API is removed in
 	RemovedInVersion string `json:"removedInVersion,omitempty"`
+}
+
+type API struct {
+	Kind       string `json:"kind"`
+	APIVersion string `json:"apiVersion"`
 }

@@ -48,7 +48,6 @@ const UpgradeDescription = "Kubernetes deprecated API upgrade - DO NOT rollback 
 // ReplaceManifestUnSupportedAPIs returns a release manifest with deprecated or removed
 // Kubernetes APIs updated to supported APIs
 func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig KubeConfig) (string, error) {
-	var modifiedManifest = origManifest
 	var err error
 	var mapMetadata *mapping.Metadata
 
@@ -66,32 +65,40 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 		return "", errors.Errorf("Failed to get Kubernetes server version")
 	}
 
-	// Check for deprecated or removed APIs and map accordingly to supported versions
-	for _, mapping := range mapMetadata.Mappings {
-		deprecatedAPI := mapping.DeprecatedAPI
-		supportedAPI := mapping.NewAPI
-		var apiVersionStr string
-		if mapping.DeprecatedInVersion != "" {
-			apiVersionStr = mapping.DeprecatedInVersion
-		} else {
-			apiVersionStr = mapping.RemovedInVersion
-		}
-		if !semver.IsValid(apiVersionStr) {
-			return "", errors.Errorf("Failed to get the deprecated or removed Kubernetes version for API: %s", strings.ReplaceAll(deprecatedAPI, "\n", " "))
-		}
-
-		if count := strings.Count(modifiedManifest, deprecatedAPI); count > 0 {
-			if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
-				log.Printf("The following API does not require mapping as the "+
-					"API is not deprecated or removed in Kubernetes '%s':\n\"%s\"\n", apiVersionStr,
-					deprecatedAPI)
+	updatedDocuments := []string{}
+	for _, originalDocument := range SeparateDocuments(origManifest) {
+		newDocument := originalDocument
+		// Check for deprecated or removed APIs and map accordingly to supported versions
+		for _, mapping := range mapMetadata.Mappings {
+			var apiVersionStr string
+			if mapping.DeprecatedInVersion != "" {
+				apiVersionStr = mapping.DeprecatedInVersion
 			} else {
-				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", count, deprecatedAPI, supportedAPI)
-				modifiedManifest = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
+				apiVersionStr = mapping.RemovedInVersion
 			}
+			if !semver.IsValid(apiVersionStr) {
+				return "", errors.Errorf("Failed to get the deprecated or removed Kubernetes version for API: %s %s", mapping.DeprecatedAPI.APIVersion, mapping.DeprecatedAPI.Kind)
+			}
+
+			if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
+				log.Printf("The resource %s/%s does not require mapping as the "+
+					"API is not deprecated or removed in Kubernetes '%s'\n",
+					mapping.DeprecatedAPI.APIVersion,
+					mapping.DeprecatedAPI.Kind,
+					kubeVersionStr,
+				)
+			} else {
+				newDocument, err = CheckForOldAPI(originalDocument, mapping)
+				if err != nil {
+					log.Printf("could not update old api: %s\n", err)
+					newDocument = originalDocument
+				}
+			}
+			updatedDocuments = append(updatedDocuments, newDocument)
 		}
 	}
 
+	modifiedManifest := strings.Join(updatedDocuments, "\n")
 	return modifiedManifest, nil
 }
 
