@@ -32,7 +32,14 @@ type Mapping struct {
 	RemovedInVersion string `json:"removedInVersion,omitempty"`
 }
 
+// API the apiVersion and kind uniquely identify the resources being
+// updated.
 type API struct {
-	Kind       string `json:"kind"`
+	// Kind is a Kubernetes resource such as Deployment, PriorityClass, Pod that's
+	// found in an API version.
+	Kind string `json:"kind"`
+
+	// APIVersion is the version of the Kubernetes resources. This usually takes the form
+	// scheduling.k8s.io/v1beta1, extensions/v1beta1, or networking.k8s.io/v1beta1
 	APIVersion string `json:"apiVersion"`
 }

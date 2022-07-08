@@ -16,7 +16,7 @@ jobs:
     working_directory: /go/src/github.com/helm/helm-mapkubeapis
     steps:
       - checkout
-      - run: make build
+      - run: make test && make build
   tagged-build:
     docker:
       - image: circleci/golang:1.17

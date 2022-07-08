@@ -45,7 +45,7 @@ $ ./linux-amd64/helm plugin install https://github.com/helm/helm-mapkubeapis
 Map release deprecated or removed Kubernetes APIs in-place:
 
 ```console
-$ helm mapkubeapis [flags] RELEASE 
+$ helm mapkubeapis [flags] RELEASE
 
 Flags:
       --dry-run                  simulate a command
@@ -59,7 +59,7 @@ Flags:
 Example output:
 
 ```console
-$ helm mapkubeapis cluster-role-example --namespace test-cluster-role-example         
+$ helm mapkubeapis cluster-role-example --namespace test-cluster-role-example
 2022/02/07 18:48:49 Release 'cluster-role-example' will be checked for deprecated or removed Kubernetes APIs and will be updated if necessary to supported API versions.
 2022/02/07 18:48:49 Get release 'cluster-role-example' latest version.
 2022/02/07 18:48:49 Check release 'cluster-role-example' for deprecated or removed APIs...
@@ -94,17 +94,20 @@ kind: ClusterRoleBinding
 The mapping information of deprecated or removed APIs to supported APIs is configured in the [Map.yaml](https://github.com/helm/helm-mapkubeapis/blob/master/config/Map.yaml) file. The file is a list of entries similar to the following:
 
 ```yaml
- - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Deployment"
-    newAPI: "apiVersion: apps/v1\nkind: Deployment"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
+- deprecatedAPI:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+  newAPI:
+    apiVersion: apps/v1
+    kind: Deployment
+  deprecatedInVersion: "v1.9"
+  removedInVersion: "v1.16"
 ```
 
 The plugin when performing update of a Helm release metadata first loads the map file from the `config` directory where the plugin is run from. If the map file is a different name or in a different location, you can use the `--mapfile` flag to specify the different mapping file.
 
 The OOTB mapping file is configured as follows:
 
-- The search and replace strings are in order with `apiVersion` first and then `kind`. This should be changed if the Helm release metadata is rendered with different search/replace string.
 - The strings contain UNIX/Linux line feeds. This means that `\n` is used to signify line separation between properties in the strings. This should be changed if the Helm release metadata is rendered in Windows or Mac.
 - Each mapping contains the Kubernetes version that the API is deprecated and removed in. This information is important as the plugin checks that the deprecated version (uses removed if deprecated unset) is later than the Kubernetes version that it is running against. If it is then no mapping occurs for this API as it not yet deprecated in this Kubernetes version and hence the new API is not yet supported. Otherwise, the mapping can proceed.
 

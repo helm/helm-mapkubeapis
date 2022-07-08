@@ -32,7 +32,6 @@ description: deploys kube resources
 )
 
 func TestCheckForOldAPI(t *testing.T) {
-
 	manifest, err := common.UnmarshallManifest(basicPriorityClass)
 	if err != nil {
 		t.Log(err)

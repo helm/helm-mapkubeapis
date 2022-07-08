@@ -7,6 +7,10 @@ build:
 	export CGO_ENABLED=0 && \
 	go build -o bin/${HELM_PLUGIN_NAME} -ldflags $(LDFLAGS) ./cmd/mapkubeapis
 
+.PHONY: test
+test:
+	go test ./...
+
 .PHONY: bootstrap
 bootstrap:
 	export GO111MODULE=on && \
