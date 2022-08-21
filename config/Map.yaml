@@ -190,5 +190,8 @@ mappings:
   - deprecatedAPI: "apiVersion: autoscaling/v2beta1\nkind: HorizontalPodAutoscaler\n"
     newAPI: "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\n"
     deprecatedInVersion: "v1.23"
+  - deprecatedAPI: "apiVersion: policy/v1beta1\nkind: PodDisruptionBudget\n"
+    newAPI: "apiVersion: policy/v1\nkind: PodDisruptionBudget\n"
+    deprecatedInVersion: "v1.21"
     removedInVersion: "v1.25"
 
