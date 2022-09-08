@@ -128,7 +128,7 @@ Helm [v2.17.0](https://github.com/helm/helm/releases/tag/v2.17.0) was the final 
 
 If you would like to handle the build yourself, this is the recommended way to do it.
 
-You must first have [Go v1.17+](http://golang.org) installed, and then you run:
+You must first have [Go v1.18+](http://golang.org) installed, and then you run:
 
 ```console
 $ mkdir -p ${GOPATH}/src/github.com
