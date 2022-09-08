@@ -8,7 +8,7 @@ require (
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3
-	helm.sh/helm/v3 v3.9.3
+	helm.sh/helm/v3 v3.9.4
 	sigs.k8s.io/yaml v1.3.0
 )
 
