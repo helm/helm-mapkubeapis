@@ -195,4 +195,8 @@ mappings:
     newAPI: "apiVersion: policy/v1\nkind: PodDisruptionBudget\n"
     deprecatedInVersion: "v1.21"
     removedInVersion: "v1.25"
+  - deprecatedAPI: "apiVersion: batch/v1beta1\nkind: CronJob\n"
+    newAPI: "apiVersion: batch/v1\nkind: CronJob\n"
+    deprecatedInVersion: "v1.21"
+    removedInVersion: "v1.25"
 
