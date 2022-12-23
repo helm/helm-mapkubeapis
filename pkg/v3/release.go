@@ -73,7 +73,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	log.Printf("Set status of release version '%s' to 'superseded'.\n", getReleaseVersionName(origRelease))
 	origRelease.Info.Status = release.StatusSuperseded
 	if err := cfg.Releases.Update(origRelease); err != nil {
-		return errors.Wrapf(err, "failed to update release version '%s': %s", getReleaseVersionName(origRelease))
+		return errors.Wrapf(err, "failed to update release version '%s'", getReleaseVersionName(origRelease))
 	}
 	log.Printf("Release version '%s' updated successfully.\n", getReleaseVersionName(origRelease))
 
@@ -87,7 +87,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	newRelease.Info.Status = release.StatusDeployed
 	log.Printf("Add release version '%s' with updated supported APIs.\n", getReleaseVersionName(origRelease))
 	if err := cfg.Releases.Create(newRelease); err != nil {
-		return errors.Wrapf(err, "failed to create new release version '%s': %s", getReleaseVersionName(origRelease))
+		return errors.Wrapf(err, "failed to create new release version '%s'", getReleaseVersionName(origRelease))
 	}
 	log.Printf("Release version '%s' added successfully.\n", getReleaseVersionName(origRelease))
 	return nil
