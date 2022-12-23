@@ -195,4 +195,5 @@ mappings:
     newAPI: "apiVersion: policy/v1\nkind: PodDisruptionBudget\n"
     deprecatedInVersion: "v1.21"
     removedInVersion: "v1.25"
-
+  - deprecatedAPI: "apiVersion: policy/v1beta1\nkind: PodSecurityPolicy\n"
+    removedInVersion: "v1.25"
