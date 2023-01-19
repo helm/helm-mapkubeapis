@@ -15,6 +15,7 @@
 - Access to the cluster(s) that Helm manages. This access is similar to `kubectl` access using [kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/).
   The `--kubeconfig`, `--kube-context` and `--namespace` flags can be used to set the kubeconfig path, kube context and namespace context to override the environment configuration.
 - If you try and upgrade a release with unsupported APIs then the upgrade will fail. This is ok in Helm v3 as it will not generate a failed release for Helm.
+- A mapping file is used to define the API mappings. By default the strings in the mapping file contain UNIX/Linux line feeds. This means that `\n` is used to signify line separation between properties in the strings. This should be changed if the Helm release metadata is rendered in Windows or Mac. Refer to [API Mapping](#api-mapping) for more details.
 - The plugin updates the lastest release version. The latest release version should be in a `deployed` state as you want to update a successful deployment. If it is not then you need to delete the latest release version. The command to remove a release version is:
     - Helm v3: `kubectl delete configmap/secret sh.helm.release.v1.<release_name>.v<latest_version_number> --namespace <release_namespace>`
 
