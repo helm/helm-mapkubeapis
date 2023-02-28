@@ -13,6 +13,10 @@ bootstrap:
 	export GOPROXY=$(MOD_PROXY_URL) && \
 	go mod download
 
+.PHONY: test
+test:
+	go test -v ./...
+
 .PHONY: tag
 tag:
 	@scripts/tag.sh
