@@ -93,17 +93,15 @@ func ReplaceManifestData(mapMetadata *mapping.Metadata, modifiedManifest string,
 			return "", errors.Errorf("Failed to get the deprecated or removed Kubernetes version for API: %s", strings.ReplaceAll(deprecatedAPI, "\n", " "))
 		}
 
-		if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
-			log.Printf("The following API does not require mapping as the "+
-				"API is not deprecated or removed in Kubernetes '%s':\n\"%s\"\n", apiVersionStr,
-				deprecatedAPI)
-			// skip to next mapping
-			continue
-		}
-
 		if count := strings.Count(modifiedManifest, deprecatedAPI); count > 0 {
+			if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
+				log.Printf("The following API:\n\"%s\" does not require mapping as the "+
+					"API is not deprecated or removed in Kubernetes \"%s\"\n", deprecatedAPI, kubeVersionStr)
+				// skip to next mapping
+				continue
+			}
 			if supportedAPI == "" {
-				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\n", count, deprecatedAPI)
+				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\nNo supported API equivalent\n", count, deprecatedAPI)
 				modifiedManifest = removeDeprecatedAPIWithoutSuccessor(count, deprecatedAPI, modifiedManifest)
 			} else {
 				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", count, deprecatedAPI, supportedAPI)
