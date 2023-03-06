@@ -20,7 +20,6 @@ import (
 	"log"
 	"strings"
 
-	utils "github.com/maorfr/helm-plugin-utils/pkg"
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
 
@@ -146,7 +145,7 @@ func removeDeprecatedAPIWithoutSuccessor(count int, deprecatedAPI string, modifi
 }
 
 func getKubernetesServerVersion(kubeConfig KubeConfig) (string, error) {
-	clientSet := utils.GetClientSetWithKubeConfig(kubeConfig.File, kubeConfig.Context)
+	clientSet := GetClientSetWithKubeConfig(kubeConfig.File, kubeConfig.Context)
 	if clientSet == nil {
 		return "", errors.Errorf("kubernetes cluster unreachable")
 	}
