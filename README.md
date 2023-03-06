@@ -5,7 +5,7 @@
 [![CircleCI](https://circleci.com/gh/helm/helm-mapkubeapis/tree/master.svg?style=svg)](https://circleci.com/gh/helm/helm-mapkubeapis/tree/master)
 [![Release](https://img.shields.io/github/release/helm/helm-mapkubeapis.svg?style=flat-square)](https://github.com/helm/helm-mapkubeapis/releases/latest)
 
-`mapkubeapis` is a Helm v3 plugin which updates in-place Helm release metadata that contains deprecated or removed Kubernetes APIs to a new instance with supported Kubernetes APIs. Jump to [background to the issue](#background-to-the-issue) for more details on the problem space that the plugin solves.
+`mapkubeapis` is a Helm v3 plugin which updates in-place Helm release metadata that contains deprecated or removed Kubernetes APIs to a new instance with supported Kubernetes APIs, or entirely removes references to resources that use APIs that were removed and do not have a successor. Jump to [background to the issue](#background-to-the-issue) for more details on the problem space that the plugin solves.
 
 > Note: Charts need to be updated also to supported Kubernetes APIs to avoid failure during deployment in a Kubernetes version. This is a separate task to the plugin.
 
@@ -15,7 +15,7 @@
 - Access to the cluster(s) that Helm manages. This access is similar to `kubectl` access using [kubeconfig files](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/).
   The `--kubeconfig`, `--kube-context` and `--namespace` flags can be used to set the kubeconfig path, kube context and namespace context to override the environment configuration.
 - If you try and upgrade a release with unsupported APIs then the upgrade will fail. This is ok in Helm v3 as it will not generate a failed release for Helm.
-- A mapping file is used to define the API mappings. By default the strings in the mapping file contain UNIX/Linux line feeds. This means that `\n` is used to signify line separation between properties in the strings. This should be changed if the Helm release metadata is rendered in Windows or Mac. Refer to [API Mapping](#api-mapping) for more details.
+- A mapping file is used to define the API mappings. By default, the strings in the mapping file contain UNIX/Linux line feeds. This means that `\n` is used to signify line separation between properties in the strings. This should be changed if the Helm release metadata is rendered in Windows or Mac. Refer to [API Mapping](#api-mapping) for more details.
 - The plugin updates the lastest release version. The latest release version should be in a `deployed` state as you want to update a successful deployment. If it is not then you need to delete the latest release version. The command to remove a release version is:
     - Helm v3: `kubectl delete configmap/secret sh.helm.release.v1.<release_name>.v<latest_version_number> --namespace <release_namespace>`
 
@@ -107,7 +107,15 @@ The OOTB mapping file is configured as follows:
 
 - The search and replace strings are in order with `apiVersion` first and then `kind`. This should be changed if the Helm release metadata is rendered with different search/replace string.
 - The strings contain UNIX/Linux line feeds. This means that `\n` is used to signify line separation between properties in the strings. This should be changed if the Helm release metadata is rendered in Windows or Mac.
-- Each mapping contains the Kubernetes version that the API is deprecated and removed in. This information is important as the plugin checks that the deprecated version (uses removed if deprecated unset) is later than the Kubernetes version that it is running against. If it is then no mapping occurs for this API as it not yet deprecated in this Kubernetes version and hence the new API is not yet supported. Otherwise, the mapping can proceed.
+- Each mapping is composed of:
+    - The original API group and version (required);
+    - The new API group and version (optional);
+    - The Kubernetes version that the API is deprecated in (optional); and
+    - The Kubernetes version that the API is removed in (required).
+
+  This information is important as the plugin checks that the deprecated version (or the removed version, when deprecated version is unset) is later than the Kubernetes version that it is running against. If it is then no mapping occurs for this API as it not yet deprecated in this Kubernetes version and hence the new API is not yet supported. Otherwise, the mapping can proceed.
+
+  When the new API group is unset, the mapping is assumed to be a removal of an API for which there is no successor. In this scenario, all the resources that refer to the removed API are entirely removed from the release metadata. This aims to address scenarios where the API was replaced with a different mechanism that does not take the same input format, such as the removal of the PodSecurityPolicy API.
 
 > Note: The Helm release metadata can be checked by following the steps in:
 - Helm v3: [Updating API Versions of a Release Manifest](https://helm.sh/docs/topics/kubernetes_apis/#updating-api-versions-of-a-release-manifest)
