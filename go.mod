@@ -1,6 +1,6 @@
 module github.com/helm/helm-mapkubeapis
 
-go 1.22.0
+go 1.22
 
 require (
 	github.com/onsi/ginkgo/v2 v2.6.1

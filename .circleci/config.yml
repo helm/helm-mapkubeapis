@@ -26,7 +26,7 @@ jobs:
             shellcheck -x scripts/install_plugin.sh
   untagged-build:
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.22
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -37,7 +37,7 @@ jobs:
           no_output_timeout: 20m
   tagged-build:
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.22
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
