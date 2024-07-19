@@ -98,21 +98,6 @@ Before opening a new issue or submitting a new pull request, it's helpful to sea
 it's likely that another user has already reported the issue you're facing, or it's a known issue
 that we're already aware of. It is also worth asking on the Slack channels.
 
-## Milestones
-
-We use milestones to track progress of specific planned releases.
-
-For example, if the latest currently-released version is `3.2.1`, an issue/PR which pertains to a
-specific upcoming bugfix or feature release could fall into one of two different active milestones:
-`3.2.2` or `3.3.0`.
-
-Issues and PRs which are deemed backwards-incompatible may be added to the discussion items for
-Helm 4 with [label:v4.x](https://github.com/helm/helm/labels/v4.x). An issue or PR that we are not
-sure we will be addressing will not be added to any milestone.
-
-A milestone (and hence release) can be closed when all outstanding issues/PRs have been closed
-or moved to another milestone and the associated release has been published.
-
 ## Semantic Versioning
 
 Helm maintains a strong commitment to backward compatibility. All of our changes to protocols and
@@ -176,7 +161,6 @@ below.
     - We attempt to do this process at least once per work day.
 3. Discussion
     - Issues that are labeled `feature` or `proposal` must write a Helm Improvement Proposal (HIP).
-      See [Proposing an Idea](#proposing-an-idea). Smaller quality-of-life enhancements are exempt.
     - Issues that are labeled as `feature` or `bug` should be connected to the PR that resolves it.
     - Whoever is working on a `feature` or `bug` issue (whether a maintainer or someone from the
       community), should either assign the issue to themselves or make a comment in the issue saying
@@ -185,26 +169,6 @@ below.
       been active for more than 30 days. This will help keep the issue queue to a manageable size
       and reduce noise. Should the issue need to stay open, the `keep open` label can be added.
 4. Issue closure
-
-## Proposing an Idea
-
-Before proposing a new idea to the Helm project, please make sure to write up a [Helm Improvement
-Proposal](https://github.com/helm/community/tree/master/hips). A Helm Improvement Proposal is a
-design document that describes a new feature for the Helm project. The proposal should provide a
-concise technical specification and rationale for the feature.
-
-It is also worth considering vetting your idea with the community via the
-[cncf-helm](mailto:cncf-helm@lists.cncf.io) mailing list. Vetting an idea publicly before going as
-far as writing a proposal is meant to save the potential author time. Many ideas have been proposed;
-it's quite likely there are others in the community who may be working on a similar proposal, or a
-similar proposal may have already been written.
-
-HIPs are submitted to the [helm/community repository](https://github.com/helm/community). [HIP
-1](https://github.com/helm/community/blob/master/hips/hip-0001.md) describes the process to write a
-HIP as well as the review process.
-
-After your proposal has been approved, follow the [developer's
-guide](https://helm.sh/docs/community/developers/) to get started.
 
 ## How to Contribute a Patch
 
@@ -220,99 +184,31 @@ docs](https://helm.sh/docs/developers/).
 
 Like any good open source project, we use Pull Requests (PRs) to track code changes.
 
-### PR Lifecycle
-
-1. PR creation
-    - PRs are usually created to fix or else be a subset of other PRs that fix a particular issue.
-    - We more than welcome PRs that are currently in progress. They are a great way to keep track of
-      important work that is in-flight, but useful for others to see. If a PR is a work in progress,
-      it **must** be prefaced with "WIP: [title]". Once the PR is ready for review, remove "WIP"
-      from the title.
-    - It is preferred, but not required, to have a PR tied to a specific issue. There can be
-      circumstances where if it is a quick fix then an issue might be overkill. The details provided
-      in the PR description would suffice in this case.
-2. Triage
-    - The maintainer in charge of triaging will apply the proper labels for the issue. This should
-      include at least a size label, `bug` or `feature`, and `awaiting review` once all labels are
-      applied. See the [Labels section](#labels) for full details on the definitions of labels.
-    - Add the PR to the correct milestone. This should be the same as the issue the PR closes.
-3. Assigning reviews
-    - Once a review has the `awaiting review` label, maintainers will review them as schedule
-      permits. The maintainer who takes the issue should self-request a review.
-    - PRs from a community member with the label `size/S` or larger requires 2 review approvals from
-      maintainers before it can be merged. Those with `size/XS` are per the judgement of the
-      maintainers. For more detail see the [Size Labels](#size-labels) section.
-4. Reviewing/Discussion
-    - All reviews will be completed using GitHub review tool.
-    - A "Comment" review should be used when there are questions about the code that should be
-      answered, but that don't involve code changes. This type of review does not count as approval.
-    - A "Changes Requested" review indicates that changes to the code need to be made before they
-      will be merged.
-    - Reviewers should update labels as needed (such as `needs rebase`)
-5. Address comments by answering questions or changing code
-6. LGTM (Looks good to me)
-    - Once a Reviewer has completed a review and the code looks ready to merge, an "Approve" review
-      is used to signal to the contributor and to other maintainers that you have reviewed the code
-      and feel that it is ready to be merged.
-7. Merge or close
-    - PRs should stay open until merged or if they have not been active for more than 30 days. This
-      will help keep the PR queue to a manageable size and reduce noise. Should the PR need to stay
-      open (like in the case of a WIP), the `keep open` label can be added.
-    - Before merging a PR, refer to the topic on [Size Labels](#size-labels) below to determine if
-      the PR requires more than one LGTM to merge.
-    - If the owner of the PR is listed in the `OWNERS` file, that user **must** merge their own PRs
-      or explicitly request another OWNER do that for them.
-    - If the owner of a PR is _not_ listed in `OWNERS`, any core maintainer may merge the PR.
-
-#### Documentation PRs
+### Documentation PRs
 
 Documentation PRs will follow the same lifecycle as other PRs. They will also be labeled with the
 `docs` label. For documentation, special attention will be paid to spelling, grammar, and clarity
 (whereas those things don't matter *as* much for comments in code).
 
-## The Triager
-
-Each week, one of the core maintainers will serve as the designated "triager" starting after the
-public stand-up meetings on Thursday. This person will be in charge triaging new PRs and issues
-throughout the work week.
-
 ## Labels
 
-The following tables define all label types used for Helm. It is split up by category.
-
-### Common
+The following tables define all label types used for Helm-MapKubeAPIs.
 
 | Label | Description |
 | ----- | ----------- |
 | `bug` | Marks an issue as a bug or a PR as a bugfix |
-| `critical` | Marks an issue or PR as critical. This means that addressing the PR or issue is top priority and must be addressed as soon as possible |
-| `docs` | Indicates the issue or PR is a documentation change |
-| `feature` | Marks the issue as a feature request or a PR as a feature implementation |
-| `keep open` | Denotes that the issue or PR should be kept open past 30 days of inactivity |
-| `refactor` | Indicates that the issue is a code refactor and is not fixing a bug or adding additional functionality |
-
-### Issue Specific
-
-| Label | Description |
-| ----- | ----------- |
+| `dependencies` | Pull requests that update a dependency file |
+| `documentation` | Improvements or additions to documentation |
+| `duplicate` | This issue or pull request already exists |
+| `enhancement` | New feature or request |
+| `good first issue` | Marks an issue as a good starter issue for someone new to the project |
+| `hactoberfest-accepted` | Accept for hactoberfest |
 | `help wanted` | Marks an issue needs help from the community to solve |
-| `proposal` | Marks an issue as a proposal |
-| `question/support` | Marks an issue as a support request or question |
-| `good first issue` | Marks an issue as a good starter issue for someone new to Helm |
+| `invalid` | This doesn't seem right |
+| `question` | Marks an issue as a support request or question |
 | `wont fix` | Marks an issue as discussed and will not be implemented (or accepted in the case of a proposal) |
 
-### PR Specific
-
-| Label | Description |
-| ----- | ----------- |
-| `awaiting review` | Indicates a PR has been triaged and is ready for someone to review |
-| `breaking` | Indicates a PR has breaking changes (such as API changes) |
-| `in progress` | Indicates that a maintainer is looking at the PR, even if no review has been posted yet |
-| `needs rebase` | Indicates a PR needs to be rebased before it can be merged |
-| `needs pick` | Indicates a PR needs to be cherry-picked into a feature branch (generally bugfix branches). Once it has been, the `picked` label should be applied and this one removed |
-| `picked` | This PR has been cherry-picked into a feature branch |
-
-#### Size labels
+### Size labels
 
 Size labels are used to indicate how "dangerous" a PR is. The guidelines below are used to assign
 the labels, but ultimately this can be changed by the maintainers. For example, even if a PR only
@@ -320,11 +216,6 @@ makes 30 lines of changes in 1 file, but it changes key functionality, it will l
 `size/L` because it requires sign off from multiple people. Conversely, a PR that adds a small
 feature, but requires another 150 lines of tests to cover all cases, could be labeled as `size/S`
 even though the number of lines is greater than defined below.
-
-Any changes from the community labeled as `size/S` or larger should be thoroughly tested before
-merging and always requires approval from 2 core maintainers. PRs submitted by a core maintainer,
-regardless of size, only requires approval from one additional maintainer. This ensures there are at
-least two maintainers who are aware of any significant PRs introduced to the codebase.
 
 | Label | Description |
 | ----- | ----------- |
