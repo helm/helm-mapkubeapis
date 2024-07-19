@@ -5,9 +5,9 @@ name: build-test
 
 on:
   push:
-    branches: 
-      - 'main'
-      - 'release-**'
+    branches:
+      - "main"
+      - "release-**"
   pull_request:
     branches:
       - main
@@ -16,13 +16,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout source code
-    - uses: actions/checkout@v4
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.22'
-    - name: Run Test
-      run: make test
-    - name: Build
-      run: make build
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22"
+      - name: Run Test
+        run: make test
+      - name: Build
+        run: make build
