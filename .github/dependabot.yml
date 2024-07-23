@@ -5,10 +5,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    groups:
-      k8s.io:
-        patterns:
-          - "k8s.io/client-go"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
