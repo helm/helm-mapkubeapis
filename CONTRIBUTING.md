@@ -127,18 +127,11 @@ Issues are used as the primary method for tracking anything to do with the Helm 
 
 There are 5 types of issues (each with their own corresponding [label](#labels)):
 
-- `question/support`: These are support or functionality inquiries that we want to have a record of
+- `question`: These are support or functionality inquiries that we want to have a record of
   for future reference. Generally these are questions that are too complex or large to store in the
   Slack channel or have particular interest to the community as a whole. Depending on the
   discussion, these can turn into `feature` or `bug` issues.
-- `proposal`: Used for items (like this one) that propose a new ideas or functionality that require
-  a larger community discussion. This allows for feedback from others in the community before a
-  feature is actually  developed. This is not needed for small additions. Final word on whether or
-  not a feature needs a proposal is up to the core maintainers. All issues that are proposals should
-  both have a label and an issue title of "Proposal: [the rest of the title]." A proposal can become
-  a `feature` and does not require a milestone.
-- `feature`: These track specific feature requests and ideas until they are complete. They can
-  evolve from a `proposal` or can be submitted individually depending on the size.
+- `enhancement`: These track specific feature requests and ideas until they are complete.
 - `bug`: These track bugs with the code
 - `docs`: These track problems with the documentation (i.e. missing or incomplete)
 
@@ -172,10 +165,8 @@ below.
 
 ## How to Contribute a Patch
 
-1. Identify or create the related issue. If you're proposing a larger change to
-   Helm, see [Proposing an Idea](#proposing-an-idea).
-2. Fork the desired repo; develop and test your code changes.
-3. Submit a pull request, making sure to sign your work and link the related issue.
+1. Fork the desired repo; develop and test your code changes.
+2. Submit a pull request, making sure to sign your work and link the related issue.
 
 Coding conventions and standards are explained in the [official developer
 docs](https://helm.sh/docs/developers/).
