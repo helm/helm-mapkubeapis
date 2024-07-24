@@ -1,11 +1,12 @@
 maintainers:
-  - adamreese
-  - bacongobbler
-  - hickeyma
   - jdolitsky
   - mattfarina
-  - prydonius
   - rimusz
   - scottrigby
   - technosophos
   - unguiculus
+emeritus:
+  - adamreese
+  - bacongobbler
+  - hickeyma
+  - prydonius
