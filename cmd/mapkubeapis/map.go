@@ -49,7 +49,10 @@ func newMapCmd(out io.Writer, args []string) *cobra.Command {
 		SilenceUsage: true,
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				cmd.Help()
+				err := cmd.Help()
+				if err != nil {
+					return err
+				}
 				os.Exit(1)
 			} else if len(args) > 1 {
 				return errors.New("only one release name may be passed at a time")
@@ -62,7 +65,11 @@ func newMapCmd(out io.Writer, args []string) *cobra.Command {
 
 	flags := cmd.PersistentFlags()
 	flags.ParseErrorsWhitelist.UnknownFlags = true
-	flags.Parse(args)
+	err := flags.Parse(args)
+	if err != nil {
+		return nil
+	}
+
 	settings = new(EnvSettings)
 
 	// Get the default mapping file
