@@ -17,14 +17,14 @@ limitations under the License.
 package mapping
 
 import (
-	"io/ioutil"
+	"os"
 
 	"sigs.k8s.io/yaml"
 )
 
 // LoadMapfile loads a Map.yaml file into a *Metadata.
 func LoadMapfile(filename string) (*Metadata, error) {
-	b, err := ioutil.ReadFile(filename)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
