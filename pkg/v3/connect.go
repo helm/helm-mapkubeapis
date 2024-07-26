@@ -55,6 +55,9 @@ func GetActionConfig(namespace string, kubeConfig common.KubeConfig) (*action.Co
 func debug(format string, v ...interface{}) {
 	if settings.Debug {
 		format = fmt.Sprintf("[debug] %s\n", format)
-		log.Output(2, fmt.Sprintf(format, v...))
+		err := log.Output(2, fmt.Sprintf(format, v...))
+		if err != nil {
+			return
+		}
 	}
 }
