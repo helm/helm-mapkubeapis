@@ -106,19 +106,6 @@ are removed or substantially modified (unless we need to fix a security issue).
 
 We also remain committed to not changing publicly accessible Go library definitions inside of the `pkg/` directory of our source code in a non-backwards-compatible way.
 
-For more details on Helm’s minor and patch release backwards-compatibility rules, please read [HIP-0004](https://github.com/helm/community/blob/main/hips/hip-0004.md)
-
-For a quick summary of our backward compatibility guidelines for releases between 3.0 and 4.0:
-
-- Command line commands, flags, and arguments MUST be backward compatible
-- File formats (such as Chart.yaml) MUST be backward compatible
-- Any chart that worked on a previous version of Helm 3 MUST work on a new version of Helm 3
-  (barring the cases where (a) Kubernetes itself changed, and (b) the chart worked because it
-  exploited a bug)
-- Chart repository functionality MUST be backward compatible
-- Go libraries inside of `pkg/` MUST remain backward compatible, though code inside of `cmd/` and
-  `internal/` may be changed from release to release without notice.
-
 ## Issues
 
 Issues are used as the primary method for tracking anything to do with the Helm project.
