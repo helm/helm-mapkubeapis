@@ -4,9 +4,6 @@ on:
   create:
     tags:
       - v*
-  push:
-    branches:
-      - main
 
 permissions:
   contents: write
