@@ -41,7 +41,7 @@ var (
 	settings *EnvSettings
 )
 
-func newMapCmd(out io.Writer, args []string) *cobra.Command {
+func newMapCmd(_ io.Writer, args []string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "mapkubeapis [flags] RELEASE",
 		Short:        "Map release deprecated or removed Kubernetes APIs in-place",
@@ -96,7 +96,7 @@ func newMapCmd(out io.Writer, args []string) *cobra.Command {
 	return cmd
 }
 
-func runMap(cmd *cobra.Command, args []string) error {
+func runMap(_ *cobra.Command, args []string) error {
 	releaseName := args[0]
 	mapOptions := MapOptions{
 		DryRun:           settings.DryRun,

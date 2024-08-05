@@ -9,13 +9,13 @@ import (
 	"io"
 	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/ginkgo/v2"
+	"github.com/onsi/gomega"
 )
 
 func TestCommon(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Deprecated APIs replacement suite")
+	gomega.RegisterFailHandler(ginkgo.Fail)
+	ginkgo.RunSpecs(t, "Deprecated APIs replacement suite")
 }
 
 // CheckDecode verifies that the passed YAML is parsing correctly
@@ -39,7 +39,7 @@ func CheckDecode(manifest string) error {
 	return nil
 }
 
-var _ = Describe("replacing deprecated APIs", Ordered, func() {
+var _ = ginkgo.Describe("replacing deprecated APIs", ginkgo.Ordered, func() {
 	var mapFile *mapping.Metadata
 
 	var deprecatedPodDisruptionBudget string
@@ -50,7 +50,7 @@ var _ = Describe("replacing deprecated APIs", Ordered, func() {
 
 	var deprecatedPodSecurityPolicy string
 
-	BeforeAll(func() {
+	ginkgo.BeforeAll(func() {
 		deprecatedPodDisruptionBudget = "apiVersion: policy/v1beta1\nkind: PodDisruptionBudget\n"
 		newPodDisruptionBudget = "apiVersion: policy/v1\nkind: PodDisruptionBudget\n"
 
@@ -92,8 +92,8 @@ var _ = Describe("replacing deprecated APIs", Ordered, func() {
 		}
 	})
 
-	When("a deprecated API exists in the manifest", func() {
-		When("it is a superseded API", func() {
+	ginkgo.When("a deprecated API exists in the manifest", func() {
+		ginkgo.When("it is a superseded API", func() {
 			var (
 				deploymentManifest                           string
 				expectedResultingDeploymentManifest          string
@@ -101,7 +101,7 @@ var _ = Describe("replacing deprecated APIs", Ordered, func() {
 				expectedResultingPodDisruptionBudgetManifest string
 			)
 
-			BeforeAll(func() {
+			ginkgo.BeforeAll(func() {
 				deploymentManifest = `---
 apiVersion: apps/v1beta2
 kind: Deployment
@@ -141,23 +141,23 @@ metadata:
   namespace: test-ns`
 			})
 
-			It("replaces deprecated resources with a new version in Kubernetes v1.25", func() {
+			ginkgo.It("replaces deprecated resources with a new version in Kubernetes v1.25", func() {
 				kubeVersion125 := "v1.25"
 				modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, deploymentManifest, kubeVersion125)
 
-				Expect(err).ToNot(HaveOccurred())
-				Expect(modifiedDeploymentManifest).To(Equal(expectedResultingDeploymentManifest))
+				gomega.Expect(err).ToNot(gomega.HaveOccurred())
+				gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultingDeploymentManifest))
 
 				modifiedPdbManifest, err := common.ReplaceManifestData(mapFile, podDisruptionBudgetManifest, kubeVersion125)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(modifiedPdbManifest).To(Equal(expectedResultingPodDisruptionBudgetManifest))
+				gomega.Expect(err).ToNot(gomega.HaveOccurred())
+				gomega.Expect(modifiedPdbManifest).To(gomega.Equal(expectedResultingPodDisruptionBudgetManifest))
 
 				err = CheckDecode(modifiedDeploymentManifest)
-				Expect(err).ToNot(HaveOccurred())
+				gomega.Expect(err).ToNot(gomega.HaveOccurred())
 			})
 		})
 
-		When("it is a removed API", func() {
+		ginkgo.When("it is a removed API", func() {
 			var kubeVersion125 = "v1.25"
 			var expectedResultManifest = `---
 apiVersion: apps/v1
@@ -172,7 +172,7 @@ metadata:
   name: test-sa
   namespace: test-ns`
 
-			When("it is in the beginning of the manifest", func() {
+			ginkgo.When("it is in the beginning of the manifest", func() {
 				var podSecurityPolicyManifest = `---
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
@@ -191,19 +191,19 @@ metadata:
   name: test-sa
   namespace: test-ns`
 
-				It("removes the deprecated API manifest and leaves a valid YAML", func() {
+				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
-					Expect(err).ToNot(HaveOccurred())
-					Expect(modifiedDeploymentManifest).ToNot(ContainSubstring(deprecatedPodSecurityPolicy))
-					Expect(expectedResultManifest).To(Equal(expectedResultManifest))
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(expectedResultManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
-					Expect(err).ToNot(HaveOccurred())
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				})
 			})
 
-			When("it is at the end of the manifest", func() {
+			ginkgo.When("it is at the end of the manifest", func() {
 				var podSecurityPolicyManifest = `---
 apiVersion: apps/v1
 kind: Deployment
@@ -222,19 +222,19 @@ kind: PodSecurityPolicy
 metadata:
   name: test-psp`
 
-				It("removes the deprecated API manifest and leaves a valid YAML", func() {
+				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
-					Expect(err).ToNot(HaveOccurred())
-					Expect(modifiedDeploymentManifest).ToNot(ContainSubstring(deprecatedPodSecurityPolicy))
-					Expect(modifiedDeploymentManifest).To(Equal(expectedResultManifest))
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
-					Expect(err).ToNot(HaveOccurred())
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				})
 			})
 
-			When("it is in the middle of other manifests", func() {
+			ginkgo.When("it is in the middle of other manifests", func() {
 				var podSecurityPolicyManifest = `---
 apiVersion: apps/v1
 kind: Deployment
@@ -253,19 +253,19 @@ metadata:
   name: test-sa
   namespace: test-ns`
 
-				It("removes the deprecated API manifest and leaves a valid YAML", func() {
+				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
-					Expect(err).ToNot(HaveOccurred())
-					Expect(modifiedDeploymentManifest).ToNot(ContainSubstring(deprecatedPodSecurityPolicy))
-					Expect(modifiedDeploymentManifest).To(Equal(expectedResultManifest))
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
-					Expect(err).ToNot(HaveOccurred())
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				})
 			})
 
-			When("a three-dash is missing at the beginning", func() {
+			ginkgo.When("a three-dash is missing at the beginning", func() {
 				var podSecurityPolicyManifest = `apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
@@ -283,19 +283,19 @@ metadata:
   name: test-sa
   namespace: test-ns`
 
-				It("removes the deprecated API manifest and leaves a valid YAML", func() {
+				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
-					Expect(err).ToNot(HaveOccurred())
-					Expect(modifiedDeploymentManifest).ToNot(ContainSubstring(deprecatedPodSecurityPolicy))
-					Expect(modifiedDeploymentManifest).To(Equal(expectedResultManifest))
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
-					Expect(err).ToNot(HaveOccurred())
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				})
 			})
 
-			When("apiVersion is not the first field", func() {
+			ginkgo.When("apiVersion is not the first field", func() {
 				var podSecurityPolicyManifest = `---
 metadata:
   name: test-psp
@@ -314,19 +314,19 @@ metadata:
   name: test-sa
   namespace: test-ns`
 
-				It("removes the deprecated API manifest and leaves a valid YAML", func() {
+				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
-					Expect(err).ToNot(HaveOccurred())
-					Expect(modifiedDeploymentManifest).ToNot(ContainSubstring(deprecatedPodSecurityPolicy))
-					Expect(modifiedDeploymentManifest).To(Equal(expectedResultManifest))
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
-					Expect(err).ToNot(HaveOccurred())
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				})
 			})
 
-			When("apiVersion is not the first field and a three-dash is missing at the beginning of the manifest", func() {
+			ginkgo.When("apiVersion is not the first field and a three-dash is missing at the beginning of the manifest", func() {
 				var podSecurityPolicyManifest = `metadata:
   name: test-psp
 apiVersion: policy/v1beta1
@@ -344,19 +344,19 @@ metadata:
   name: test-sa
   namespace: test-ns`
 
-				It("removes the deprecated API manifest and leaves a valid YAML", func() {
+				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
-					Expect(err).ToNot(HaveOccurred())
-					Expect(modifiedDeploymentManifest).ToNot(ContainSubstring(deprecatedPodSecurityPolicy))
-					Expect(modifiedDeploymentManifest).To(Equal(expectedResultManifest))
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
-					Expect(err).ToNot(HaveOccurred())
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				})
 			})
 
-			When("apiVersion is not the first field and the resource is in the middle of the manifest", func() {
+			ginkgo.When("apiVersion is not the first field and the resource is in the middle of the manifest", func() {
 				var podSecurityPolicyManifest = `---
 apiVersion: apps/v1
 kind: Deployment
@@ -375,19 +375,19 @@ metadata:
   name: test-sa
   namespace: test-ns`
 
-				It("removes the deprecated API manifest and leaves a valid YAML", func() {
+				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
-					Expect(err).ToNot(HaveOccurred())
-					Expect(modifiedDeploymentManifest).ToNot(ContainSubstring(deprecatedPodSecurityPolicy))
-					Expect(modifiedDeploymentManifest).To(Equal(expectedResultManifest))
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
-					Expect(err).ToNot(HaveOccurred())
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				})
 			})
 
-			When("apiVersion is not the first field and the resource is at the end of the manifest", func() {
+			ginkgo.When("apiVersion is not the first field and the resource is at the end of the manifest", func() {
 				var podSecurityPolicyManifest = `---
 apiVersion: apps/v1
 kind: Deployment
@@ -409,15 +409,15 @@ spec:
   allowPrivilegeEscalation: true
 `
 
-				It("removes the deprecated API manifest and leaves a valid YAML", func() {
+				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
-					Expect(err).ToNot(HaveOccurred())
-					Expect(modifiedDeploymentManifest).ToNot(ContainSubstring(deprecatedPodSecurityPolicy))
-					Expect(modifiedDeploymentManifest).To(Equal(expectedResultManifest))
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
-					Expect(err).ToNot(HaveOccurred())
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				})
 			})
 		})
