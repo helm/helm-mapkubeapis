@@ -1,0 +1,17 @@
+run:
+  timeout: 10m
+
+linters:
+  disable-all: true
+  enable:
+    - gofmt
+    - gosimple
+    - govet
+    - misspell
+    - revive
+    - unused
+    - staticcheck
+
+linters-settings:
+  gofmt:
+    simplify: true
