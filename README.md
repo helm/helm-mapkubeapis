@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go Report Card](https://goreportcard.com/badge/github.com/helm/helm-mapkubeapis)](https://goreportcard.com/report/github.com/helm/helm-mapkubeapis)
 [![Release](https://img.shields.io/github/release/helm/helm-mapkubeapis.svg?style=flat-square)](https://github.com/helm/helm-mapkubeapis/releases/latest)
-[![Build Status](https://github.com/helm/helm-mapkubeapis/workflows/goreleaser/badge.svg)](https://github.com/helm/helm-mapkubeapis/actions?workflow=goreleaser)
+[![Build Status](https://github.com/helm/helm-mapkubeapis/workflows/build-test/badge.svg)](https://github.com/helm/helm-mapkubeapis/actions?workflow=build-test)
 
 `mapkubeapis` is a Helm v3 plugin which updates in-place Helm release metadata that contains deprecated or removed Kubernetes APIs to a new instance with supported Kubernetes APIs, or entirely removes references to resources that use APIs that were removed and do not have a successor. Jump to [background to the issue](#background-to-the-issue) for more details on the problem space that the plugin solves.
 
