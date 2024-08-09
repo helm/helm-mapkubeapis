@@ -11,7 +11,11 @@ echo "Downloading and installing helm-mapkubeapis v${version} ..."
 
 url=""
 if [ "$(uname)" = "Darwin" ]; then
-    url="https://github.com/helm/helm-mapkubeapis/releases/download/v${version}/helm-mapkubeapis_${version}_darwin_amd64.tar.gz"
+    if [ "$(uname -m)" = "arm64" ]; then
+        url="https://github.com/helm/helm-mapkubeapis/releases/download/v${version}/helm-mapkubeapis_${version}_darwin_arm64.tar.gz"
+    else
+        url="https://github.com/helm/helm-mapkubeapis/releases/download/v${version}/helm-mapkubeapis_${version}_darwin_amd64.tar.gz"
+    fi
 elif [ "$(uname)" = "Linux" ] ; then
     if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then
         url="https://github.com/helm/helm-mapkubeapis/releases/download/v${version}/helm-mapkubeapis_${version}_linux_arm64.tar.gz"
