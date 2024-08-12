@@ -217,3 +217,7 @@ mappings:
     newAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta3\nkind: FlowSchema\n"
     deprecatedInVersion: "v1.26"
     removedInVersion: "v1.29"
+  - deprecatedAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta3\nkind: FlowSchema\n"
+    newAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1\nkind: FlowSchema\n"
+    deprecatedInVersion: "v1.29"
+    removedInVersion: "v1.32"
