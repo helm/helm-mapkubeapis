@@ -1,5 +1,5 @@
 name: "mapkubeapis"
-version: "0.5.1"
+version: "0.5.2"
 usage: "Map release deprecated Kubernetes APIs in-place"
 description: "Map release deprecated Kubernetes APIs in-place"
 command: "$HELM_PLUGIN_DIR/bin/mapkubeapis"
