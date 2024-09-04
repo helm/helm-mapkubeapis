@@ -65,10 +65,6 @@ func newMapCmd(_ io.Writer, args []string) *cobra.Command {
 
 	flags := cmd.PersistentFlags()
 	flags.ParseErrorsWhitelist.UnknownFlags = true
-	err := flags.Parse(args)
-	if err != nil {
-		return nil
-	}
 
 	settings = new(EnvSettings)
 
