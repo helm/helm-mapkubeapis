@@ -41,7 +41,7 @@ var (
 	settings *EnvSettings
 )
 
-func newMapCmd(_ io.Writer, args []string) *cobra.Command {
+func newMapCmd(_ io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "mapkubeapis [flags] RELEASE",
 		Short:        "Map release deprecated or removed Kubernetes APIs in-place",

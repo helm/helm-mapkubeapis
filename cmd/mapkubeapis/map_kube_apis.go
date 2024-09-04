@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	mapCmd := newMapCmd(os.Stdout, os.Args[1:])
+	mapCmd := newMapCmd(os.Stdout)
 
 	if err := mapCmd.Execute(); err != nil {
 		os.Exit(1)
