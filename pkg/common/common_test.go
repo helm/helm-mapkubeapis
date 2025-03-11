@@ -2,15 +2,15 @@ package common_test
 
 import (
 	"bytes"
-	"github.com/helm/helm-mapkubeapis/pkg/common"
-	"github.com/helm/helm-mapkubeapis/pkg/mapping"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	"io"
 	"testing"
 
+	"github.com/helm/helm-mapkubeapis/pkg/common"
+	"github.com/helm/helm-mapkubeapis/pkg/mapping"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 func TestCommon(t *testing.T) {
@@ -111,8 +111,9 @@ metadata:
 spec:
   template:
     containers:
-    - name: test-container
-      image: test-image`
+      - image: test-image
+        name: test-container
+`
 
 				expectedResultingDeploymentManifest = `---
 apiVersion: apps/v1
@@ -123,22 +124,25 @@ metadata:
 spec:
   template:
     containers:
-    - name: test-container
-      image: test-image`
+      - image: test-image
+        name: test-container
+`
 
 				podDisruptionBudgetManifest = `---
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
   name: pdb-test
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				expectedResultingPodDisruptionBudgetManifest = `---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: pdb-test
-  namespace: test-ns`
+  namespace: test-ns
+`
 			})
 
 			ginkgo.It("replaces deprecated resources with a new version in Kubernetes v1.25", func() {
@@ -170,7 +174,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 			ginkgo.When("it is in the beginning of the manifest", func() {
 				var podSecurityPolicyManifest = `---
@@ -189,7 +194,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
@@ -220,7 +226,8 @@ metadata:
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: test-psp`
+  name: test-psp
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
@@ -251,7 +258,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
@@ -281,7 +289,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
@@ -312,7 +321,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
@@ -342,7 +352,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
@@ -373,7 +384,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
