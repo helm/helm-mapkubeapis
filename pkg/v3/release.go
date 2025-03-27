@@ -26,11 +26,12 @@ import (
 	"helm.sh/helm/v3/pkg/release"
 
 	common "github.com/helm/helm-mapkubeapis/pkg/common"
+	"github.com/helm/helm-mapkubeapis/pkg/mapping"
 )
 
 // MapReleaseWithUnSupportedAPIs checks the latest release version for any deprecated or removed APIs in its metadata
 // If it finds any, it will create a new release version with the APIs mapped to the supported versions
-func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
+func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions, additionalMappings ...*mapping.Mapping) error {
 	cfg, err := GetActionConfig(mapOptions.ReleaseNamespace, mapOptions.KubeConfig)
 	if err != nil {
 		return errors.Wrap(err, "failed to get Helm action configuration")
@@ -45,7 +46,7 @@ func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions) error {
 
 	log.Printf("Check release '%s' for deprecated or removed APIs...\n", releaseName)
 	var origManifest = releaseToMap.Manifest
-	modifiedManifest, err := common.ReplaceManifestUnSupportedAPIs(origManifest, mapOptions.MapFile, mapOptions.KubeConfig)
+	modifiedManifest, err := common.ReplaceManifestUnSupportedAPIs(origManifest, mapOptions.MapFile, mapOptions.KubeConfig, additionalMappings...)
 	if err != nil {
 		return err
 	}
