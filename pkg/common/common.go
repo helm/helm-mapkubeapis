@@ -17,16 +17,14 @@ limitations under the License.
 package common
 
 import (
-	"log"
-	"strings"
-
+	"fmt"
+	"github.com/helm/helm-mapkubeapis/pkg/mapping"
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
-
-	"github.com/helm/helm-mapkubeapis/pkg/mapping"
+	"log"
 )
 
-// KubeConfig are the Kubernetes configuration settings
+// KubeConfig are the Kubernetes configuration settings
 type KubeConfig struct {
 	Context string
 	File    string
@@ -47,7 +45,7 @@ const UpgradeDescription = "Kubernetes deprecated API upgrade - DO NOT rollback 
 // ReplaceManifestUnSupportedAPIs returns a release manifest with deprecated or removed
 // Kubernetes APIs updated to supported APIs
 func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig KubeConfig) (string, error) {
-	var modifiedManifest = origManifest
+	var modifiedManifest string
 	var err error
 	var mapMetadata *mapping.Metadata
 
@@ -66,7 +64,7 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 	}
 
 	// Check for deprecated or removed APIs and map accordingly to supported versions
-	modifiedManifest, err = ReplaceManifestData(mapMetadata, modifiedManifest, kubeVersionStr)
+	modifiedManifest, err = ReplaceManifestData(mapMetadata, origManifest, kubeVersionStr)
 	if err != nil {
 		return "", err
 	}
@@ -77,69 +75,59 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 // ReplaceManifestData scans the release manifest string for deprecated APIs in a given Kubernetes version and replaces
 // their groups and versions if there is a successor, or fully removes the manifest for that specific resource if no
 // successors exist (such as the PodSecurityPolicy API).
-func ReplaceManifestData(mapMetadata *mapping.Metadata, modifiedManifest string, kubeVersionStr string) (string, error) {
-	for _, mapping := range mapMetadata.Mappings {
-		deprecatedAPI := mapping.DeprecatedAPI
-		supportedAPI := mapping.NewAPI
-		var apiVersionStr string
-		if mapping.DeprecatedInVersion != "" {
-			apiVersionStr = mapping.DeprecatedInVersion
-		} else {
-			apiVersionStr = mapping.RemovedInVersion
+func ReplaceManifestData(mapMetadata *mapping.Metadata, origManifest string, kubeVersionStr string) (string, error) {
+	yamlDocs, err := ParseYAML(origManifest)
+	if err != nil {
+		return "", err
+	}
+	for _, m := range mapMetadata.Mappings {
+		var apiVersionStr = m.RemovedInVersion
+		if m.DeprecatedInVersion != "" {
+			apiVersionStr = m.DeprecatedInVersion
 		}
 
 		if !semver.IsValid(apiVersionStr) {
-			return "", errors.Errorf("Failed to get the deprecated or removed Kubernetes version for API: %s", strings.ReplaceAll(deprecatedAPI, "\n", " "))
+			return "", errors.Errorf("Failed to get the deprecated or removed Kubernetes version for apiVersion: %s kind: %s",
+				m.DeprecatedAPI.APIVersion, m.DeprecatedAPI.Kind)
 		}
 
-		if count := strings.Count(modifiedManifest, deprecatedAPI); count > 0 {
-			if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
-				log.Printf("The following API:\n\"%s\" does not require mapping as the "+
-					"API is not deprecated or removed in Kubernetes \"%s\"\n", deprecatedAPI, kubeVersionStr)
-				// skip to next mapping
-				continue
+		var count = 0
+	docLoop:
+		for idx, doc := range yamlDocs {
+			version, _ := doc["apiVersion"].(string)
+			kind, _ := doc["kind"].(string)
+			if version == m.DeprecatedAPI.APIVersion && kind == m.DeprecatedAPI.Kind {
+				fmt.Printf("Found deprecated or removed Kubernetes version for API: %s %s\n",
+					m.DeprecatedAPI.APIVersion, m.DeprecatedAPI.Kind)
+				fmt.Println("original: ", doc)
+				if semver.Compare(apiVersionStr, kubeVersionStr) > 0 {
+					log.Printf("The following API:\n\"%s\" does not require mapping as the "+
+						"API is not deprecated or removed in Kubernetes \"%s\"\n", m.DeprecatedAPI.APIVersion, kubeVersionStr)
+					// skip to next mapping
+					break docLoop
+				}
+				count++
+				if m.NewAPI.APIVersion != "" {
+					doc["apiVersion"] = m.NewAPI.APIVersion
+					doc["kind"] = m.NewAPI.Kind
+					fmt.Println("modified: ", doc)
+				} else {
+					yamlDocs = append(yamlDocs[:idx], yamlDocs[idx+1:]...)
+					fmt.Println("deleted doc without replacement")
+				}
 			}
-			if supportedAPI == "" {
-				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\nNo supported API equivalent\n", count, deprecatedAPI)
-				modifiedManifest = removeDeprecatedAPIWithoutSuccessor(count, deprecatedAPI, modifiedManifest)
+		}
+		if count > 0 {
+			if m.NewAPI.APIVersion == "" {
+				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\nNo supported API equivalent\n",
+					count, m.DeprecatedAPI.APIVersion)
 			} else {
-				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n", count, deprecatedAPI, supportedAPI)
-				modifiedManifest = strings.ReplaceAll(modifiedManifest, deprecatedAPI, supportedAPI)
+				log.Printf("Found %d instances of deprecated or removed Kubernetes API:\n\"%s\"\nSupported API equivalent:\n\"%s\"\n",
+					count, m.DeprecatedAPI.APIVersion, m.NewAPI.APIVersion)
 			}
 		}
 	}
-	return modifiedManifest, nil
-}
-
-// removeDeprecatedAPIWithoutSuccessor removes a deprecated API that has no successor specified in the mapping file.
-func removeDeprecatedAPIWithoutSuccessor(count int, deprecatedAPI string, modifiedManifest string) string {
-	for repl := 0; repl < count; repl++ {
-		// find the position where the API header is
-		apiIndex := strings.Index(modifiedManifest, deprecatedAPI)
-
-		// find the next separator index
-		separatorIndex := strings.Index(modifiedManifest[apiIndex:], "---\n")
-
-		// find the previous separator index
-		previousSeparatorIndex := strings.LastIndex(modifiedManifest[:apiIndex], "---\n")
-
-		/*
-		 * if no previous separator index was found, it means the resource is at the beginning and not
-		 * prefixed by ---
-		 */
-		if previousSeparatorIndex == -1 {
-			previousSeparatorIndex = 0
-		}
-
-		if separatorIndex == -1 { // this means we reached the end of input
-			modifiedManifest = modifiedManifest[:previousSeparatorIndex]
-		} else {
-			modifiedManifest = modifiedManifest[:previousSeparatorIndex] + modifiedManifest[separatorIndex+apiIndex:]
-		}
-	}
-
-	modifiedManifest = strings.Trim(modifiedManifest, "\n")
-	return modifiedManifest
+	return EncodeYAML(yamlDocs)
 }
 
 func getKubernetesServerVersion(kubeConfig KubeConfig) (string, error) {
