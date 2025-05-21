@@ -14,7 +14,7 @@ builds:
       - arm64
 archives:
   - id: archive
-    format: tar.gz
+    formats: [ 'tar.gz' ]
     files:
       - README.md
       - LICENSE
