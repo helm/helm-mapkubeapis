@@ -10,7 +10,7 @@ require (
 	github.com/spf13/pflag v1.0.6
 	golang.org/x/mod v0.24.0
 	gopkg.in/yaml.v3 v3.0.1
-	helm.sh/helm/v3 v3.18.0
+	helm.sh/helm/v3 v3.18.1
 	k8s.io/client-go v0.33.1
 	sigs.k8s.io/yaml v1.4.0
 )
