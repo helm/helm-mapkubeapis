@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/helm/helm-mapkubeapis/pkg/common"
-	v3 "github.com/helm/helm-mapkubeapis/pkg/v3"
+	v4 "github.com/helm/helm-mapkubeapis/pkg/v4"
 )
 
 // MapOptions contains the options for Map operation
@@ -64,7 +64,7 @@ func newMapCmd(_ io.Writer) *cobra.Command {
 	}
 
 	flags := cmd.PersistentFlags()
-	flags.ParseErrorsWhitelist.UnknownFlags = true
+	flags.ParseErrorsAllowlist.UnknownFlags = true
 
 	settings = new(EnvSettings)
 
@@ -76,7 +76,7 @@ func newMapCmd(_ io.Writer) *cobra.Command {
 	}
 
 	// When run with the Helm plugin framework, Helm plugins are not passed the
-	// plugin flags that correspond to Helm global flags e.g. helm mapkubeapis v3map --kube-context ...
+	// plugin flags that correspond to Helm global flags e.g. helm mapkubeapis v4map --kube-context ...
 	// The flag values are set to corresponding environment variables instead.
 	// The flags are passed as expected when run directly using the binary.
 	// The below allows to use Helm's --kube-context global flag.
@@ -128,7 +128,7 @@ func Map(mapOptions MapOptions, kubeConfig common.KubeConfig) error {
 		ReleaseNamespace: mapOptions.ReleaseNamespace,
 	}
 
-	if err := v3.MapReleaseWithUnSupportedAPIs(options); err != nil {
+	if err := v4.MapReleaseWithUnSupportedAPIs(options); err != nil {
 		return err
 	}
 

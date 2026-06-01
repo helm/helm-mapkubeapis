@@ -17,12 +17,10 @@ limitations under the License.
 package v3
 
 import (
-	"fmt"
-	"log"
 	"os"
 
-	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v4/pkg/action"
+	"helm.sh/helm/v4/pkg/cli"
 
 	common "github.com/helm/helm-mapkubeapis/pkg/common"
 )
@@ -44,20 +42,10 @@ func GetActionConfig(namespace string, kubeConfig common.KubeConfig) (*action.Co
 		namespace = settings.Namespace()
 	}
 
-	err := actionConfig.Init(settings.RESTClientGetter(), namespace, os.Getenv("HELM_DRIVER"), debug)
+	err := actionConfig.Init(settings.RESTClientGetter(), namespace, os.Getenv("HELM_DRIVER"))
 	if err != nil {
 		return nil, err
 	}
 
 	return actionConfig, err
-}
-
-func debug(format string, v ...interface{}) {
-	if settings.Debug {
-		format = fmt.Sprintf("[debug] %s\n", format)
-		err := log.Output(2, fmt.Sprintf(format, v...))
-		if err != nil {
-			return
-		}
-	}
 }

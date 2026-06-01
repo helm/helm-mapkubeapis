@@ -22,8 +22,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/release"
+	"helm.sh/helm/v4/pkg/action"
+	"helm.sh/helm/v4/pkg/release"
+	releasecommon "helm.sh/helm/v4/pkg/release/common"
+	releasev1 "helm.sh/helm/v4/pkg/release/v1"
 
 	common "github.com/helm/helm-mapkubeapis/pkg/common"
 	"github.com/helm/helm-mapkubeapis/pkg/mapping"
@@ -69,10 +71,10 @@ func MapReleaseWithUnSupportedAPIs(mapOptions common.MapOptions, additionalMappi
 	return nil
 }
 
-func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *action.Configuration) error {
+func updateRelease(origRelease *releasev1.Release, modifiedManifest string, cfg *action.Configuration) error {
 	// Update current release version to be superseded
 	log.Printf("Set status of release version '%s' to 'superseded'.\n", getReleaseVersionName(origRelease))
-	origRelease.Info.Status = release.StatusSuperseded
+	origRelease.Info.Status = releasecommon.StatusSuperseded
 	if err := cfg.Releases.Update(origRelease); err != nil {
 		return errors.Wrapf(err, "failed to update release version '%s'", getReleaseVersionName(origRelease))
 	}
@@ -85,7 +87,7 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	newRelease.Info.Description = common.UpgradeDescription
 	newRelease.Info.LastDeployed = cfg.Now()
 	newRelease.Version = origRelease.Version + 1
-	newRelease.Info.Status = release.StatusDeployed
+	newRelease.Info.Status = releasecommon.StatusDeployed
 	log.Printf("Add release version '%s' with updated supported APIs.\n", getReleaseVersionName(origRelease))
 	if err := cfg.Releases.Create(newRelease); err != nil {
 		return errors.Wrapf(err, "failed to create new release version '%s'", getReleaseVersionName(origRelease))
@@ -94,10 +96,27 @@ func updateRelease(origRelease *release.Release, modifiedManifest string, cfg *a
 	return nil
 }
 
-func getLatestRelease(releaseName string, cfg *action.Configuration) (*release.Release, error) {
-	return cfg.Releases.Last(releaseName)
+func getLatestRelease(releaseName string, cfg *action.Configuration) (*releasev1.Release, error) {
+	r, err := cfg.Releases.Last(releaseName)
+	if err != nil {
+		return nil, err
+	}
+	return releaserToV1Release(r)
 }
 
-func getReleaseVersionName(rel *release.Release) string {
+func getReleaseVersionName(rel *releasev1.Release) string {
 	return fmt.Sprintf("%s.v%d", rel.Name, rel.Version)
+}
+
+func releaserToV1Release(rel release.Releaser) (*releasev1.Release, error) {
+	switch r := rel.(type) {
+	case releasev1.Release:
+		return &r, nil
+	case *releasev1.Release:
+		return r, nil
+	case nil:
+		return nil, nil
+	default:
+		return nil, fmt.Errorf("unsupported release type: %T", rel)
+	}
 }
