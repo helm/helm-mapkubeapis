@@ -1,235 +1,472 @@
 mappings:
-  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Deployment\n"
-    newAPI: "apiVersion: apps/v1\nkind: Deployment\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: apps/v1beta1\nkind: Deployment\n"
-    newAPI: "apiVersion: apps/v1\nkind: Deployment\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: apps/v1beta2\nkind: Deployment\n"
-    newAPI: "apiVersion: apps/v1\nkind: Deployment\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: apps/v1beta1\nkind: StatefulSet\n"
-    newAPI: "apiVersion: apps/v1\nkind: StatefulSet\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: apps/v1beta2\nkind: StatefulSet\n"
-    newAPI: "apiVersion: apps/v1\nkind: StatefulSet\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: DaemonSet\n"
-    newAPI: "apiVersion: apps/v1\nkind: DaemonSet\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: apps/v1beta2\nkind: DaemonSet\n"
-    newAPI: "apiVersion: apps/v1\nkind: DaemonSet\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: ReplicaSet\n"
-    newAPI: "apiVersion: apps/v1\nkind: ReplicaSet\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: apps/v1beta1\nkind: ReplicaSet\n"
-    newAPI: "apiVersion: apps/v1\nkind: ReplicaSet\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: apps/v1beta2\nkind: ReplicaSet\n"
-    newAPI: "apiVersion: apps/v1\nkind: ReplicaSet\n"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: NetworkPolicy\n"
-    newAPI: "apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\n"
-    deprecatedInVersion: "v1.8"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: PodSecurityPolicy\n"
-    newAPI: "apiVersion: policy/v1beta1\nkind: PodSecurityPolicy\n"
-    deprecatedInVersion: "v1.10"
-    removedInVersion: "v1.16"
-  - deprecatedAPI: "apiVersion: admissionregistration.k8s.io/v1beta1\nkind: MutatingWebhookConfiguration\n"
-    newAPI: "apiVersion: admissionregistration.k8s.io/v1\nkind: MutatingWebhookConfiguration\n"
-    deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: admissionregistration.k8s.io/v1beta1\nkind: ValidatingWebhookConfiguration\n"
-    newAPI: "apiVersion: admissionregistration.k8s.io/v1\nkind: ValidatingWebhookConfiguration\n"
-    deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: apiextensions.k8s.io/v1beta1\nkind: CustomResourceDefinition\n"
-    newAPI: "apiVersion: apiextensions.k8s.io/v1\nkind: CustomResourceDefinition\n"
-    deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: apiregistration.k8s.io/v1beta1\nkind: APIService\n"
-    newAPI: "apiVersion: apiregistration.k8s.io/v1\nkind: APIService\n"
-    deprecatedInVersion: "v1.19"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: apiregistration.k8s.io/v1beta1\nkind: APIServiceList\n"
-    newAPI: "apiVersion: apiregistration.k8s.io/v1\nkind: APIServiceList\n"
-    deprecatedInVersion: "v1.19"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: authentication.k8s.io/v1beta1\nkind: TokenReview\n"
-    newAPI: "apiVersion: authentication.k8s.io/v1\nkind: TokenReview\n"
-    deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: authorization.k8s.io/v1beta1\nkind: LocalSubjectAccessReview\n"
-    newAPI: "apiVersion: authorization.k8s.io/v1\nkind: LocalSubjectAccessReview\n"
-    deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: authorization.k8s.io/v1beta1\nkind: SelfSubjectAccessReview\n"
-    newAPI: "apiVersion: authorization.k8s.io/v1\nkind: SelfSubjectAccessReview\n"
-    deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: authorization.k8s.io/v1beta1\nkind: SubjectAccessReview\n"
-    newAPI: "apiVersion: authorization.k8s.io/v1\nkind: SubjectAccessReview\n"
-    deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: autoscaling/v2beta1\nkind: HorizontalPodAutoscaler\n"
-    newAPI: "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\n"
-    deprecatedInVersion: "v1.23"
-    removedInVersion: "v1.25"
-  - deprecatedAPI: "apiVersion: autoscaling/v2beta2\nkind: HorizontalPodAutoscaler\n"
-    newAPI: "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\n"
-    deprecatedInVersion: "v1.23"
-    removedInVersion: "v1.26"
-  - deprecatedAPI: "apiVersion: batch/v1beta1\nkind: CronJob\n"
-    newAPI: "apiVersion: batch/v1\nkind: CronJob\n"
-    deprecatedInVersion: "v1.21"
-    removedInVersion: "v1.25"
-  - deprecatedAPI: "apiVersion: certificates.k8s.io/v1beta1\nkind: CertificateSigningRequest\n"
-    newAPI: "apiVersion: certificates.k8s.io/v1\nkind: CertificateSigningRequest\n"
-    deprecatedInVersion: "v1.19"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: coordination.k8s.io/v1beta1\nkind: Lease\n"
-    newAPI: "apiVersion: coordination.k8s.io/v1\nkind: Lease\n"
-    deprecatedInVersion: "v1.14"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Ingress\n"
-    newAPI: "apiVersion: networking.k8s.io/v1beta1\nkind: Ingress\n"
-    deprecatedInVersion: "v1.14"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: networking.k8s.io/v1beta1\nkind: Ingress\n"
-    newAPI: "apiVersion: networking.k8s.io/v1\nkind: Ingress\n"
-    deprecatedInVersion: "v1.19"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: networking.k8s.io/v1beta1\nkind: IngressClass\n"
-    newAPI: "apiVersion: networking.k8s.io/v1\nkind: IngressClass\n"
-    deprecatedInVersion: "v1.19"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: policy/v1beta1\nkind: PodDisruptionBudget\n"
-    newAPI: "apiVersion: policy/v1\nkind: PodDisruptionBudget\n"
-    deprecatedInVersion: "v1.21"
-    removedInVersion: "v1.25"
-  - deprecatedAPI: "apiVersion: policy/v1beta1\nkind: PodSecurityPolicy\n"
-    removedInVersion: "v1.25"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRole\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRoleList\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleList\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRoleBinding\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: ClusterRoleBindingList\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBindingList\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: Role\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: Role\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: RoleList\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleList\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: RoleBinding\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1alpha1\nkind: RoleBindingList\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBindingList\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRole\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRoleList\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleList\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRoleBinding\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: ClusterRoleBindingList\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBindingList\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: Role\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: Role\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: RoleList\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleList\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: RoleBinding\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: rbac.authorization.k8s.io/v1beta1\nkind: RoleBindingList\n"
-    newAPI: "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBindingList\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: scheduling.k8s.io/v1beta1\nkind: PriorityClass\n"
-    newAPI: "apiVersion: scheduling.k8s.io/v1\nkind: PriorityClass\n"
-    deprecatedInVersion: "v1.14"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: CSIDriver\n"
-    newAPI: "apiVersion: storage.k8s.io/v1\nkind: CSIDriver\n"
-    deprecatedInVersion: "v1.19"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: CSINode\n"
-    newAPI: "apiVersion: storage.k8s.io/v1\nkind: CSINode\n"
-    deprecatedInVersion: "v1.17"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: StorageClass\n"
-    newAPI: "apiVersion: storage.k8s.io/v1\nkind: StorageClass\n"
-    deprecatedInVersion: "v1.16"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: VolumeAttachment\n"
-    newAPI: "apiVersion: storage.k8s.io/v1\nkind: VolumeAttachment\n"
-    deprecatedInVersion: "v1.13"
-    removedInVersion: "v1.22"
-  - deprecatedAPI: "apiVersion: storage.k8s.io/v1beta1\nkind: CSIStorageCapacity\n"
-    newAPI: "apiVersion: storage.k8s.io/v1\nkind: CSIStorageCapacity\n"
-    deprecatedInVersion: "v1.24"
-    removedInVersion: "v1.27"
-  - deprecatedAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta1\nkind: FlowSchema\n"
-    newAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta3\nkind: FlowSchema\n"
-    deprecatedInVersion: "v1.26"
-    removedInVersion: "v1.26"
-  - deprecatedAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta2\nkind: FlowSchema\n"
-    newAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta3\nkind: FlowSchema\n"
-    deprecatedInVersion: "v1.26"
-    removedInVersion: "v1.29"
-  - deprecatedAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta3\nkind: FlowSchema\n"
-    newAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1\nkind: FlowSchema\n"
-    deprecatedInVersion: "v1.29"
-    removedInVersion: "v1.32"
-  - deprecatedAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta1\nkind: PriorityLevelConfiguration\n"
-    newAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta3\nkind: PriorityLevelConfiguration\n"
-    deprecatedInVersion: "v1.26"
-    removedInVersion: "v1.26"
-  - deprecatedAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta2\nkind: PriorityLevelConfiguration\n"
-    newAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta3\nkind: PriorityLevelConfiguration\n"
-    deprecatedInVersion: "v1.26"
-    removedInVersion: "v1.29"
-  - deprecatedAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1beta3\nkind: PriorityLevelConfiguration\n"
-    newAPI: "apiVersion: flowcontrol.apiserver.k8s.io/v1\nkind: PriorityLevelConfiguration\n"
-    deprecatedInVersion: "v1.29"
-    removedInVersion: "v1.32"
+- deprecatedAPI:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: Deployment
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: Deployment
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: apps/v1beta2
+    kind: Deployment
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: Deployment
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: apps/v1beta1
+    kind: StatefulSet
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: StatefulSet
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: apps/v1beta2
+    kind: StatefulSet
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: StatefulSet
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: extensions/v1beta1
+    kind: DaemonSet
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: DaemonSet
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: apps/v1beta2
+    kind: DaemonSet
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: DaemonSet
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: extensions/v1beta1
+    kind: ReplicaSet
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: ReplicaSet
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: apps/v1beta1
+    kind: ReplicaSet
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: ReplicaSet
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: apps/v1beta2
+    kind: ReplicaSet
+  deprecatedInVersion: v1.9
+  newAPI:
+    apiVersion: apps/v1
+    kind: ReplicaSet
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: extensions/v1beta1
+    kind: NetworkPolicy
+  deprecatedInVersion: v1.8
+  newAPI:
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: extensions/v1beta1
+    kind: PodSecurityPolicy
+  deprecatedInVersion: v1.10
+  newAPI:
+    apiVersion: policy/v1beta1
+    kind: PodSecurityPolicy
+  removedInVersion: v1.16
+- deprecatedAPI:
+    apiVersion: admissionregistration.k8s.io/v1beta1
+    kind: MutatingWebhookConfiguration
+  deprecatedInVersion: v1.16
+  newAPI:
+    apiVersion: admissionregistration.k8s.io/v1
+    kind: MutatingWebhookConfiguration
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: admissionregistration.k8s.io/v1beta1
+    kind: ValidatingWebhookConfiguration
+  deprecatedInVersion: v1.16
+  newAPI:
+    apiVersion: admissionregistration.k8s.io/v1
+    kind: ValidatingWebhookConfiguration
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: apiextensions.k8s.io/v1beta1
+    kind: CustomResourceDefinition
+  deprecatedInVersion: v1.16
+  newAPI:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: apiregistration.k8s.io/v1beta1
+    kind: APIService
+  deprecatedInVersion: v1.19
+  newAPI:
+    apiVersion: apiregistration.k8s.io/v1
+    kind: APIService
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: apiregistration.k8s.io/v1beta1
+    kind: APIServiceList
+  deprecatedInVersion: v1.19
+  newAPI:
+    apiVersion: apiregistration.k8s.io/v1
+    kind: APIServiceList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: authentication.k8s.io/v1beta1
+    kind: TokenReview
+  deprecatedInVersion: v1.16
+  newAPI:
+    apiVersion: authentication.k8s.io/v1
+    kind: TokenReview
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: authorization.k8s.io/v1beta1
+    kind: LocalSubjectAccessReview
+  deprecatedInVersion: v1.16
+  newAPI:
+    apiVersion: authorization.k8s.io/v1
+    kind: LocalSubjectAccessReview
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: authorization.k8s.io/v1beta1
+    kind: SelfSubjectAccessReview
+  deprecatedInVersion: v1.16
+  newAPI:
+    apiVersion: authorization.k8s.io/v1
+    kind: SelfSubjectAccessReview
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: authorization.k8s.io/v1beta1
+    kind: SubjectAccessReview
+  deprecatedInVersion: v1.16
+  newAPI:
+    apiVersion: authorization.k8s.io/v1
+    kind: SubjectAccessReview
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: autoscaling/v2beta1
+    kind: HorizontalPodAutoscaler
+  deprecatedInVersion: v1.23
+  newAPI:
+    apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+  removedInVersion: v1.25
+- deprecatedAPI:
+    apiVersion: autoscaling/v2beta2
+    kind: HorizontalPodAutoscaler
+  deprecatedInVersion: v1.23
+  newAPI:
+    apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+  removedInVersion: v1.26
+- deprecatedAPI:
+    apiVersion: batch/v1beta1
+    kind: CronJob
+  deprecatedInVersion: v1.21
+  newAPI:
+    apiVersion: batch/v1
+    kind: CronJob
+  removedInVersion: v1.25
+- deprecatedAPI:
+    apiVersion: certificates.k8s.io/v1beta1
+    kind: CertificateSigningRequest
+  deprecatedInVersion: v1.19
+  newAPI:
+    apiVersion: certificates.k8s.io/v1
+    kind: CertificateSigningRequest
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: coordination.k8s.io/v1beta1
+    kind: Lease
+  deprecatedInVersion: v1.14
+  newAPI:
+    apiVersion: coordination.k8s.io/v1
+    kind: Lease
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+  deprecatedInVersion: v1.14
+  newAPI:
+    apiVersion: networking.k8s.io/v1beta1
+    kind: Ingress
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: networking.k8s.io/v1beta1
+    kind: Ingress
+  deprecatedInVersion: v1.19
+  newAPI:
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: networking.k8s.io/v1beta1
+    kind: IngressClass
+  deprecatedInVersion: v1.19
+  newAPI:
+    apiVersion: networking.k8s.io/v1
+    kind: IngressClass
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: policy/v1beta1
+    kind: PodDisruptionBudget
+  deprecatedInVersion: v1.21
+  newAPI:
+    apiVersion: policy/v1
+    kind: PodDisruptionBudget
+  removedInVersion: v1.25
+- deprecatedAPI:
+    apiVersion: policy/v1beta1
+    kind: PodSecurityPolicy
+  newAPI:
+    apiVersion: ""
+    kind: ""
+  removedInVersion: v1.25
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1alpha1
+    kind: ClusterRole
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1alpha1
+    kind: ClusterRoleList
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1alpha1
+    kind: ClusterRoleBinding
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1alpha1
+    kind: ClusterRoleBindingList
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBindingList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1alpha1
+    kind: Role
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1alpha1
+    kind: RoleList
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1alpha1
+    kind: RoleBinding
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1alpha1
+    kind: RoleBindingList
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBindingList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRole
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleList
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleBinding
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleBindingList
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBindingList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: Role
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: RoleList
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: RoleBinding
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: RoleBindingList
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBindingList
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: scheduling.k8s.io/v1beta1
+    kind: PriorityClass
+  deprecatedInVersion: v1.14
+  newAPI:
+    apiVersion: scheduling.k8s.io/v1
+    kind: PriorityClass
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: storage.k8s.io/v1beta1
+    kind: CSIDriver
+  deprecatedInVersion: v1.19
+  newAPI:
+    apiVersion: storage.k8s.io/v1
+    kind: CSIDriver
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: storage.k8s.io/v1beta1
+    kind: CSINode
+  deprecatedInVersion: v1.17
+  newAPI:
+    apiVersion: storage.k8s.io/v1
+    kind: CSINode
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: storage.k8s.io/v1beta1
+    kind: StorageClass
+  deprecatedInVersion: v1.16
+  newAPI:
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: storage.k8s.io/v1beta1
+    kind: VolumeAttachment
+  deprecatedInVersion: v1.13
+  newAPI:
+    apiVersion: storage.k8s.io/v1
+    kind: VolumeAttachment
+  removedInVersion: v1.22
+- deprecatedAPI:
+    apiVersion: storage.k8s.io/v1beta1
+    kind: CSIStorageCapacity
+  deprecatedInVersion: v1.24
+  newAPI:
+    apiVersion: storage.k8s.io/v1
+    kind: CSIStorageCapacity
+  removedInVersion: v1.27
+- deprecatedAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta1
+    kind: FlowSchema
+  deprecatedInVersion: v1.26
+  newAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta3
+    kind: FlowSchema
+  removedInVersion: v1.26
+- deprecatedAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta2
+    kind: FlowSchema
+  deprecatedInVersion: v1.26
+  newAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta3
+    kind: FlowSchema
+  removedInVersion: v1.29
+- deprecatedAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta3
+    kind: FlowSchema
+  deprecatedInVersion: v1.29
+  newAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1
+    kind: FlowSchema
+  removedInVersion: v1.32
+- deprecatedAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta1
+    kind: PriorityLevelConfiguration
+  deprecatedInVersion: v1.26
+  newAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta3
+    kind: PriorityLevelConfiguration
+  removedInVersion: v1.26
+- deprecatedAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta2
+    kind: PriorityLevelConfiguration
+  deprecatedInVersion: v1.26
+  newAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta3
+    kind: PriorityLevelConfiguration
+  removedInVersion: v1.29
+- deprecatedAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1beta3
+    kind: PriorityLevelConfiguration
+  deprecatedInVersion: v1.29
+  newAPI:
+    apiVersion: flowcontrol.apiserver.k8s.io/v1
+    kind: PriorityLevelConfiguration
+  removedInVersion: v1.32

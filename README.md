@@ -9,6 +9,8 @@
 
 > Note: Charts need to be updated also to supported Kubernetes APIs to avoid failure during deployment in a Kubernetes version. This is a separate task to the plugin.
 
+> Note: The mapfile format has changed from the previous release. The new format is more resilient to changes in spacing and ordering of the Helm release metadata. The new format is described in the [API Mapping](#api-mapping) section. A converter has been provided to convert the old format to the new format. The converter may be found in the `cmd/converter` directory, built via `make converter`, and ran via `./bin/converter`.
+
 ## Prerequisite
 
 - Helm client with `mapkubeapis` plugin installed on the same system
@@ -95,10 +97,14 @@ kind: ClusterRoleBinding
 The mapping information of deprecated or removed APIs to supported APIs is configured in the [Map.yaml](https://github.com/helm/helm-mapkubeapis/blob/master/config/Map.yaml) file. The file is a list of entries similar to the following:
 
 ```yaml
- - deprecatedAPI: "apiVersion: extensions/v1beta1\nkind: Deployment"
-    newAPI: "apiVersion: apps/v1\nkind: Deployment"
-    deprecatedInVersion: "v1.9"
-    removedInVersion: "v1.16"
+- deprecatedAPI:
+  apiVersion: extensions/v1beta1
+  kind: Deployment
+newAPI:
+  apiVersion: apps/v1
+  kind: Deployment
+deprecatedInVersion: "v1.9"
+removedInVersion: "v1.16"
 ```
 
 The plugin when performing update of a Helm release metadata first loads the map file from the `config` directory where the plugin is run from. If the map file is a different name or in a different location, you can use the `--mapfile` flag to specify the different mapping file.

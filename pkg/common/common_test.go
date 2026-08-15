@@ -1,14 +1,10 @@
 package common_test
 
 import (
-	"bytes"
-	"github.com/helm/helm-mapkubeapis/pkg/common"
-	"github.com/helm/helm-mapkubeapis/pkg/mapping"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
-	"io"
 	"testing"
 
+	"github.com/helm/helm-mapkubeapis/pkg/common"
+	"github.com/helm/helm-mapkubeapis/pkg/mapping"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 )
@@ -21,43 +17,49 @@ func TestCommon(t *testing.T) {
 // CheckDecode verifies that the passed YAML is parsing correctly
 // It doesn't check semantic correctness
 func CheckDecode(manifest string) error {
-	decoder := yaml.NewDecoder(bytes.NewBufferString(manifest))
-
-	for {
-		var value interface{}
-
-		err := decoder.Decode(&value)
-		if errors.Is(err, io.EOF) {
-			break
-		}
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	_, err := common.ParseYAML(manifest)
+	return err
 }
 
 var _ = ginkgo.Describe("replacing deprecated APIs", ginkgo.Ordered, func() {
 	var mapFile *mapping.Metadata
 
-	var deprecatedPodDisruptionBudget string
-	var newPodDisruptionBudget string
+	var deprecatedPodDisruptionBudget mapping.APIVersionKind
+	var newPodDisruptionBudget mapping.APIVersionKind
 
-	var deprecatedDeployment string
-	var newDeployment string
+	var deprecatedDeployment mapping.APIVersionKind
+	var newDeployment mapping.APIVersionKind
 
-	var deprecatedPodSecurityPolicy string
+	var deprecatedPodSecurityPolicy mapping.APIVersionKind
 
 	ginkgo.BeforeAll(func() {
-		deprecatedPodDisruptionBudget = "apiVersion: policy/v1beta1\nkind: PodDisruptionBudget\n"
-		newPodDisruptionBudget = "apiVersion: policy/v1\nkind: PodDisruptionBudget\n"
+		// "apiVersion: policy/v1beta1\nkind: PodDisruptionBudget\n"
+		deprecatedPodDisruptionBudget = mapping.APIVersionKind{
+			APIVersion: "policy/v1beta1",
+			Kind:       "PodDisruptionBudget",
+		}
+		// "apiVersion: policy/v1\nkind: PodDisruptionBudget\n"
+		newPodDisruptionBudget = mapping.APIVersionKind{
+			APIVersion: "policy/v1",
+			Kind:       "PodDisruptionBudget",
+		}
 
-		deprecatedDeployment = "apiVersion: apps/v1beta2\nkind: Deployment\n"
-		newDeployment = "apiVersion: apps/v1\nkind: Deployment\n"
+		// "apiVersion: apps/v1beta2\nkind: Deployment\n"
+		deprecatedDeployment = mapping.APIVersionKind{
+			APIVersion: "apps/v1beta2",
+			Kind:       "Deployment",
+		}
+		// "apiVersion: apps/v1\nkind: Deployment\n"
+		newDeployment = mapping.APIVersionKind{
+			APIVersion: "apps/v1",
+			Kind:       "Deployment",
+		}
 
-		deprecatedPodSecurityPolicy = "apiVersion: policy/v1beta1\nkind: PodSecurityPolicy\n"
+		// "apiVersion: policy/v1beta1\nkind: PodSecurityPolicy\n"
+		deprecatedPodSecurityPolicy = mapping.APIVersionKind{
+			APIVersion: "policy/v1beta1",
+			Kind:       "PodSecurityPolicy",
+		}
 
 		mapFile = &mapping.Metadata{
 			Mappings: []*mapping.Mapping{
@@ -111,8 +113,9 @@ metadata:
 spec:
   template:
     containers:
-    - name: test-container
-      image: test-image`
+      - image: test-image
+        name: test-container
+`
 
 				expectedResultingDeploymentManifest = `---
 apiVersion: apps/v1
@@ -123,22 +126,25 @@ metadata:
 spec:
   template:
     containers:
-    - name: test-container
-      image: test-image`
+      - image: test-image
+        name: test-container
+`
 
 				podDisruptionBudgetManifest = `---
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
   name: pdb-test
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				expectedResultingPodDisruptionBudgetManifest = `---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: pdb-test
-  namespace: test-ns`
+  namespace: test-ns
+`
 			})
 
 			ginkgo.It("replaces deprecated resources with a new version in Kubernetes v1.25", func() {
@@ -170,7 +176,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 			ginkgo.When("it is in the beginning of the manifest", func() {
 				var podSecurityPolicyManifest = `---
@@ -189,13 +196,15 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
-					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.APIVersion))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.Kind))
 					gomega.Expect(expectedResultManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
@@ -220,13 +229,15 @@ metadata:
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: test-psp`
+  name: test-psp
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
-					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.APIVersion))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.Kind))
 					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
@@ -251,13 +262,15 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
-					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.APIVersion))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.Kind))
 					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
@@ -281,13 +294,15 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
-					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.APIVersion))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.Kind))
 					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
@@ -312,13 +327,15 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
-					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.APIVersion))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.Kind))
 					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
@@ -342,13 +359,15 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
-					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.APIVersion))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.Kind))
 					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
@@ -373,13 +392,15 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: test-sa
-  namespace: test-ns`
+  namespace: test-ns
+`
 
 				ginkgo.It("removes the deprecated API manifest and leaves a valid YAML", func() {
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
-					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.APIVersion))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.Kind))
 					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)
@@ -413,7 +434,8 @@ spec:
 					modifiedDeploymentManifest, err := common.ReplaceManifestData(mapFile, podSecurityPolicyManifest, kubeVersion125)
 
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
-					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.APIVersion))
+					gomega.Expect(modifiedDeploymentManifest).ToNot(gomega.ContainSubstring(deprecatedPodSecurityPolicy.Kind))
 					gomega.Expect(modifiedDeploymentManifest).To(gomega.Equal(expectedResultManifest))
 
 					err = CheckDecode(modifiedDeploymentManifest)

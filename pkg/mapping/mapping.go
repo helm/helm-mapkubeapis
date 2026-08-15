@@ -16,14 +16,21 @@ limitations under the License.
 
 package mapping
 
+// APIVersionKind represents the common elements of a Kubernetes API resource. This is used
+// for the Mapping.DeprecatedAPI and Mapping.NewAPI fields.
+type APIVersionKind struct {
+	APIVersion string `json:"apiVersion"`
+	Kind       string `json:"kind"`
+}
+
 // Mapping describes mappings which defines the Kubernetes
 // API deprecations and the new replacement API
 type Mapping struct {
 	// From is the API looking to be mapped
-	DeprecatedAPI string `json:"deprecatedAPI"`
+	DeprecatedAPI APIVersionKind `json:"deprecatedAPI"`
 
 	// To is the API to be mapped to
-	NewAPI string `json:"newAPI"`
+	NewAPI APIVersionKind `json:"newAPI"`
 
 	// Kubernetes version API is deprecated in
 	DeprecatedInVersion string `json:"deprecatedInVersion,omitempty"`
