@@ -24,7 +24,7 @@ jobs:
       - name: Add variables to environment file
         run: cat ".github/env" >> "$GITHUB_ENV"
       - name: Set up Go
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # pin@5.4.0
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # pin@7.0.0
         with:
           go-version: '${{ env.GOLANG_VERSION }}'
           check-latest: true
