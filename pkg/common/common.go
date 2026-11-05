@@ -80,6 +80,11 @@ func ReplaceManifestUnSupportedAPIs(origManifest, mapFile string, kubeConfig Kub
 // their groups and versions if there is a successor, or fully removes the manifest for that specific resource if no
 // successors exist (such as the PodSecurityPolicy API).
 func ReplaceManifestData(mapMetadata *mapping.Metadata, modifiedManifest string, kubeVersionStr string) (string, error) {
+	// Ignore pre-release and build metadata in the server version (for example "v1.25.0-eks-1234" or
+	// "v1.25.0-2786+eab9cc98fe4c00-dirty"). Otherwise semver orders it before "v1.25" and APIs deprecated or removed
+	// in that release are not mapped.
+	kubeVersionStr = strings.TrimSuffix(semver.Canonical(kubeVersionStr), semver.Prerelease(kubeVersionStr))
+
 	for _, mapping := range mapMetadata.Mappings {
 		deprecatedAPI := mapping.DeprecatedAPI
 		supportedAPI := mapping.NewAPI

@@ -155,6 +155,19 @@ metadata:
 				err = CheckDecode(modifiedDeploymentManifest)
 				gomega.Expect(err).ToNot(gomega.HaveOccurred())
 			})
+			ginkgo.It("replaces deprecated resources when the Kubernetes version has pre-release or build metadata", func() {
+				for _, kubeVersion := range []string{"v1.21.0-eks-1234567", "v1.21.0-2786+eab9cc98fe4c00-dirty", "v1.21.0+k3s1"} {
+					modifiedPdbManifest, err := common.ReplaceManifestData(mapFile, podDisruptionBudgetManifest, kubeVersion)
+					gomega.Expect(err).ToNot(gomega.HaveOccurred())
+					gomega.Expect(modifiedPdbManifest).To(gomega.Equal(expectedResultingPodDisruptionBudgetManifest), kubeVersion)
+				}
+			})
+
+			ginkgo.It("does not replace resources whose API is not yet deprecated in a pre-release Kubernetes version", func() {
+				modifiedPdbManifest, err := common.ReplaceManifestData(mapFile, podDisruptionBudgetManifest, "v1.20.0-eks-1234567")
+				gomega.Expect(err).ToNot(gomega.HaveOccurred())
+				gomega.Expect(modifiedPdbManifest).To(gomega.Equal(podDisruptionBudgetManifest))
+			})
 		})
 
 		ginkgo.When("it is a removed API", func() {
