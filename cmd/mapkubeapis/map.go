@@ -60,11 +60,11 @@ func newMapCmd(_ io.Writer) *cobra.Command {
 			return nil
 		},
 
-		RunE: runMap,
+		RunE:               runMap,
+		FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 	}
 
 	flags := cmd.PersistentFlags()
-	flags.ParseErrorsAllowlist.UnknownFlags = true
 
 	settings = new(EnvSettings)
 
