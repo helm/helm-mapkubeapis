@@ -422,4 +422,21 @@ spec:
 			})
 		})
 	})
+
+	ginkgo.When("the default mapping file is used", func() {
+		ginkgo.It("maps the APIs removed in Kubernetes v1.25", func() {
+			defaultMapFile, err := mapping.LoadMapfile("../../config/Map.yaml")
+			gomega.Expect(err).ToNot(gomega.HaveOccurred())
+
+			manifest := "---\napiVersion: node.k8s.io/v1beta1\nkind: RuntimeClass\nhandler: runsc\n" +
+				"---\napiVersion: discovery.k8s.io/v1beta1\nkind: EndpointSlice\naddressType: IPv4\n"
+			expected := "---\napiVersion: node.k8s.io/v1\nkind: RuntimeClass\nhandler: runsc\n" +
+				"---\napiVersion: discovery.k8s.io/v1\nkind: EndpointSlice\naddressType: IPv4\n"
+
+			modified, err := common.ReplaceManifestData(defaultMapFile, manifest, "v1.25.0")
+
+			gomega.Expect(err).ToNot(gomega.HaveOccurred())
+			gomega.Expect(modified).To(gomega.Equal(expected))
+		})
+	})
 })
